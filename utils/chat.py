@@ -29,6 +29,7 @@ class Chat:
         self.messages: list[Message] = []
         self.tokens: list[int] = []
         self.generation_time = 0
+        self.n_tokens_generated = 0
 
 
     def add_message(self, role: str, content: str):
@@ -49,19 +50,20 @@ class Chat:
     
     def generate_reply(self) -> str:
         full_reply = ""
-        n_generated_tokens = 0
+        n_current_tokens = 0
         
         start_time = time()
         for token in self.model.generate(tokens=self.tokens, reset=False):
             if token == self.model.token_eos(): break
-            if n_generated_tokens >= self.n_generate: break
+            if n_current_tokens >= self.n_generate: break
             
             self.tokens.append(token)
-            n_generated_tokens += 1
+            n_current_tokens += 1
 
             reply = self.model.detokenize([token]).decode('UTF-8')
             full_reply += reply
         self.generation_time += time() - start_time
+        self.n_tokens_generated += n_current_tokens
 
         return full_reply
 
@@ -71,6 +73,7 @@ class Chat:
 
 
     def print_stats(self):
-        print(f'Tokens generated: {len(self.tokens)}')
+        if self.generation_time == 0: return
+        print(f'Tokens used: {len(self.tokens)}')
         print(f'Tokens left: {self.model.n_ctx() - len(self.tokens)}')
-        print(f'Tokens generated per second: {len(self.tokens) / self.generation_time:.2f}')
+        print(f'Tokens generated per second: {self.n_tokens_generated / self.generation_time:.2f}')
