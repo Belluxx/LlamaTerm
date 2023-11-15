@@ -1,6 +1,9 @@
 import os
 import sys
 import re
+import pygments
+from pygments.lexers.markup import MarkdownLexer
+from pygments.formatters import Terminal256Formatter
 from dotenv import load_dotenv
 from llama_cpp import Llama
 from utils.ansi import AnsiCodes as AC
@@ -31,16 +34,10 @@ WORKING_DIR = sys.argv[1] if len(sys.argv) == 2 else os.getcwd()
 
 
 def format_text(text: str) -> str:
-    match_block_start = r'```[A-Za-z]+'
-    match_block_end = r'```'
-    match_inline_block = r'`([^\n`]{2,}?)`'
+    lexer = MarkdownLexer()
+    formatter = Terminal256Formatter(bg='dark')
 
-    formatted_text = text
-    formatted_text = re.sub(match_block_start, AC.BG_GREY1, formatted_text)
-    formatted_text = re.sub(match_block_end, AC.RESET, formatted_text)
-    formatted_text = re.sub(match_inline_block, fr'{AC.BG_GREY2}\1{AC.RESET}', formatted_text)
-
-    return formatted_text
+    return pygments.highlight(text, lexer, formatter)
 
 
 def inject_file(text: str) -> str:
