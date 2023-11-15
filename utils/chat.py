@@ -65,6 +65,9 @@ class Chat:
             
             interrupt, full_reply = self.check_model_impersonation(full_reply, 'user')
             if interrupt: break
+
+            interrupt, full_reply = self.check_model_impersonation(full_reply, 'system')
+            if interrupt: break
             
         self.generation_time += time() - start_time
         self.n_tokens_generated += n_current_tokens
