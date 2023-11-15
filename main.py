@@ -1,7 +1,6 @@
 import os
 import sys
 import re
-from time import time
 from dotenv import load_dotenv
 from llama_cpp import Llama
 from ansi import AnsiCodes as AC
