@@ -14,6 +14,8 @@ SYSTEM_TAG = 'system'
 USER_TAG = 'user'
 ASSISTANT_TAG = 'assistant'
 
+SYSTEM_PROMPT = os.getenv('SYSTEM_PROMPT')
+ASSISTANT_INITIAL_MESSAGE = os.getenv('ASSISTANT_INITIAL_MESSAGE')
 PREFIX_TEMPLATE = os.getenv('PREFIX_TEMPLATE')
 N_GENERATE = int(os.getenv('N_GENERATE'))
 EOS = os.getenv('EOS')
@@ -90,10 +92,10 @@ if __name__ == '__main__':
         n_generate=N_GENERATE
     )
 
-    chat.add_message(role=SYSTEM_TAG, content='You are a helpful developer assistant, answer all the questions correctly and concisely.')
-    print(f'{SYSTEM_DN}: You are a helpful developer assistant, answer all the questions correctly and concisely.')
-    chat.add_message(role=ASSISTANT_TAG, content='Hello, do you have any question?')
-    print(f'{ASSISTANT_DN}: Hello, do you have any question?')
+    chat.add_message(role=SYSTEM_TAG, content=SYSTEM_PROMPT)
+    print(f'{SYSTEM_DN}: {SYSTEM_PROMPT}')
+    chat.add_message(role=ASSISTANT_TAG, content=ASSISTANT_INITIAL_MESSAGE)
+    print(f'{ASSISTANT_DN}: {ASSISTANT_INITIAL_MESSAGE}')
 
     last_message = ''
     while 1:
