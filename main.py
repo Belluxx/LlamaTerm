@@ -38,7 +38,7 @@ def format_text(text: str) -> str:
     formatted_text = text
     formatted_text = re.sub(match_block_start, AC.BG_GREY1, formatted_text)
     formatted_text = re.sub(match_block_end, AC.RESET, formatted_text)
-    formatted_text = re.sub(match_inline_block, rf'{AC.BG_GREY2}\1{AC.RESET}', formatted_text)
+    formatted_text = re.sub(match_inline_block, fr'{AC.BG_GREY2}\1{AC.RESET}', formatted_text)
 
     return formatted_text
 
