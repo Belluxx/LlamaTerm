@@ -3,7 +3,7 @@ import sys
 import re
 from dotenv import load_dotenv
 from llama_cpp import Llama
-from ansi import AnsiCodes as AC
+from utils.ansi import AnsiCodes as AC
 from utils.chat import Chat
 
 load_dotenv('.env')
