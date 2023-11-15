@@ -99,6 +99,7 @@ if __name__ == '__main__':
     last_message = ''
     while 1:
         last_message = input(f'{USER_DN}: ').strip()
+        if len(last_message) == 0: continue
         if last_message == EXIT: break
 
         last_message = inject_file(last_message)

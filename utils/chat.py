@@ -62,11 +62,21 @@ class Chat:
 
             reply = self.model.detokenize([token]).decode('UTF-8')
             full_reply += reply
+            
+            interrupt, full_reply = self.check_model_impersonation(full_reply, 'user')
+            if interrupt: break
+            
         self.generation_time += time() - start_time
         self.n_tokens_generated += n_current_tokens
 
         return full_reply
 
+    def check_model_impersonation(self, full_reply: str, actor: str) -> tuple[bool, str]:
+        interrupt = False
+        if self.prefixes[actor] in full_reply:
+            full_reply = full_reply.split(self.prefixes[actor])[0].strip()
+            interrupt = True
+        return interrupt, full_reply
 
     def tokenize_text(self, text: str) -> list[int]:
         return self.model.tokenize(bytes(text, 'UTF-8'), add_bos=False)
