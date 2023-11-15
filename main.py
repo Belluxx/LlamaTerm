@@ -14,18 +14,18 @@ SYSTEM_TAG = 'system'
 USER_TAG = 'user'
 ASSISTANT_TAG = 'assistant'
 
-PREFIX_TEMPLATE = os.getenv("PREFIX_TEMPLATE")
-N_GENERATE = int(os.getenv("N_GENERATE"))
-EOS = os.getenv("EOS")
+PREFIX_TEMPLATE = os.getenv('PREFIX_TEMPLATE')
+N_GENERATE = int(os.getenv('N_GENERATE'))
+EOS = os.getenv('EOS')
 
 SYSTEM_DN = f'{AC.FG_CYAN}{AC.BOLD}System{AC.RESET}'
 USER_DN = f'{AC.FG_RED}{AC.BOLD}User{AC.RESET}'
 ASSISTANT_DN = f'{AC.FG_YELLOW}{AC.BOLD}Assistant{AC.RESET}'
 INFO_DN = f'{AC.FG_GREEN}{AC.BOLD}Info{AC.RESET}'
 
-BEGIN_USER = PREFIX_TEMPLATE.replace("{agent}", USER_TAG)
-BEGIN_ASSISTANT = PREFIX_TEMPLATE.replace("{agent}", ASSISTANT_TAG)
-BEGIN_SYSTEM = PREFIX_TEMPLATE.replace("{agent}", SYSTEM_TAG)
+BEGIN_USER = PREFIX_TEMPLATE.replace('{agent}', USER_TAG)
+BEGIN_ASSISTANT = PREFIX_TEMPLATE.replace('{agent}', ASSISTANT_TAG)
+BEGIN_SYSTEM = PREFIX_TEMPLATE.replace('{agent}', SYSTEM_TAG)
 WORKING_DIR = sys.argv[1] if len(sys.argv) == 2 else os.getcwd()
 
 
@@ -51,10 +51,10 @@ def inject_file(text: str) -> str:
     for filename in filenames:
         filepath = WORKING_DIR + '/' + filename
         if os.path.isfile(filepath):
-            print(f"{INFO_DN}: Injecting {filename} into the context.")
+            print(f'{INFO_DN}: Injecting {filename} into the context.')
             new_text += f'\n\n{file_to_markdown(filename)}'
             continue
-        print(f"{INFO_DN}: Faled injecting: {filename} does not exist.")
+        print(f'{INFO_DN}: Faled injecting: {filename} does not exist.')
         new_text += f'\n\nFile {filename} does not exist.'
     
     return new_text
@@ -67,7 +67,7 @@ def file_to_markdown(filename: str) -> str:
     return f'Content of {filename}:\n```{os.path.splitext(filename)[1][1:]}\n{text}\n```'
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     llama = Llama(
         model_path=os.getenv('MODEL_PATH'),
         seed=69,
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     chat.add_message(role=ASSISTANT_TAG, content='Hello, do you have any question?')
     print(f'{ASSISTANT_DN}: Hello, do you have any question?')
 
-    last_message = ""
+    last_message = ''
     while 1:
         last_message = input(f'{USER_DN}: ').strip()
         if last_message == EXIT: break
