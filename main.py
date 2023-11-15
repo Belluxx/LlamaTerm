@@ -33,7 +33,7 @@ WORKING_DIR = sys.argv[1] if len(sys.argv) == 2 else os.getcwd()
 def format_text(text: str) -> str:
     match_block_start = r'```[A-Za-z]+'
     match_block_end = r'```\n'
-    match_inline_block = r'`(.*?)`'
+    match_inline_block = r'`([^\n]*?)`'
 
     formatted_text = text
     formatted_text = re.sub(match_block_start, AC.BG_GREY1, formatted_text)
