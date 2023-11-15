@@ -64,7 +64,7 @@ def inject_file(text: str) -> str:
 def file_to_markdown(filename: str) -> str:
     path = WORKING_DIR + '/' + filename
     with open(path, 'r') as f:
-        text = f.read()
+        text = f.read().strip()
     return f'Content of {filename}:\n```{os.path.splitext(filename)[1][1:]}\n{text}\n```'
 
 
