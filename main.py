@@ -31,7 +31,7 @@ BEGIN_USER = PREFIX_TEMPLATE.replace('{agent}', USER_TAG)
 BEGIN_ASSISTANT = PREFIX_TEMPLATE.replace('{agent}', ASSISTANT_TAG)
 BEGIN_SYSTEM = PREFIX_TEMPLATE.replace('{agent}', SYSTEM_TAG)
 WORKING_DIR = sys.argv[1] if len(sys.argv) == 2 else os.getcwd()
-CONTEXT_WARNING = 200
+CONTEXT_WARNING = min(500, N_GENERATE)
 
 
 def format_text(text: str) -> str:
