@@ -9,6 +9,9 @@ class Message:
 
 
 class Chat:
+
+    CLEAR_CURRENT_LINE = '\33[2K\r'
+
     def __init__(
             self,
             model: Llama,
@@ -83,6 +86,47 @@ class Chat:
         self.n_tokens_generated += n_current_tokens
 
         return full_reply, self.context_available()
+    
+
+    def generate_reply_stepped(self):
+        full_reply = ""
+        n_current_tokens = 0
+        free_context = self.context_available()
+
+        if free_context <= 0:
+            self.context_exceeded()
+        
+        start_time = time()
+        for token in self.model.generate(tokens=self.tokens):
+            if token == self.model.token_eos():
+                yield '\n'
+                break
+            if n_current_tokens >= self.n_generate:
+                yield '\n'
+                break
+            if free_context - n_current_tokens <= 0: 
+                self.context_exceeded()
+            
+            self.tokens.append(token)
+            n_current_tokens += 1
+
+            reply = self.model.detokenize([token]).decode('UTF-8')
+            full_reply += reply
+            
+            interrupt, full_reply = self.check_model_impersonation(full_reply, 'user')
+            if interrupt:
+                yield self.CLEAR_CURRENT_LINE
+                break
+
+            interrupt, full_reply = self.check_model_impersonation(full_reply, 'system')
+            if interrupt:
+                yield self.CLEAR_CURRENT_LINE
+                break
+
+            yield reply
+            
+        self.generation_time += time() - start_time
+        self.n_tokens_generated += n_current_tokens
 
 
     def check_model_impersonation(self, full_reply: str, actor: str) -> tuple[bool, str]:
