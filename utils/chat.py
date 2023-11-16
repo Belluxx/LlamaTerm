@@ -32,7 +32,7 @@ class Chat:
         self.n_tokens_generated = 0
 
 
-    def add_message(self, role: str, content: str):
+    def add_message(self, role: str, content: str) -> int:
         new_message = Message(role=role, content=content)
         self.messages.append(new_message)
 
@@ -46,9 +46,11 @@ class Chat:
 
         new_tokens = self.tokenize_text(wrapped_content)
         self.tokens += new_tokens
+        
+        return self.context_available()
 
     
-    def generate_reply(self) -> str:
+    def generate_reply(self) -> tuple[str, int]:
         full_reply = ""
         n_current_tokens = 0
         free_context = self.context_available()
@@ -80,7 +82,7 @@ class Chat:
         self.generation_time += time() - start_time
         self.n_tokens_generated += n_current_tokens
 
-        return full_reply
+        return full_reply, self.context_available()
 
 
     def check_model_impersonation(self, full_reply: str, actor: str) -> tuple[bool, str]:

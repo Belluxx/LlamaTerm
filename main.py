@@ -31,6 +31,7 @@ BEGIN_USER = PREFIX_TEMPLATE.replace('{agent}', USER_TAG)
 BEGIN_ASSISTANT = PREFIX_TEMPLATE.replace('{agent}', ASSISTANT_TAG)
 BEGIN_SYSTEM = PREFIX_TEMPLATE.replace('{agent}', SYSTEM_TAG)
 WORKING_DIR = sys.argv[1] if len(sys.argv) == 2 else os.getcwd()
+CONTEXT_WARNING = 200
 
 
 def format_text(text: str) -> str:
@@ -100,10 +101,12 @@ if __name__ == '__main__':
         if last_message == EXIT: break
 
         last_message = inject_file(last_message)
-        chat.add_message(USER_TAG, last_message)
+        free_ctx = chat.add_message(USER_TAG, last_message)
+        if free_ctx <= CONTEXT_WARNING:
+            print(f'{INFO_DN}: context is nearly finished ({free_ctx} tokens left)')
         
         print(f'{ASSISTANT_DN}: ', end='', flush=True)
-        reply = chat.generate_reply()
+        reply, free_ctx = chat.generate_reply()
         print(format_text(reply))
     
     chat.print_stats()
