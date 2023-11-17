@@ -69,7 +69,7 @@ def file_to_markdown(filename: str) -> str:
 if __name__ == '__main__':
     llama = Llama(
         model_path=os.getenv('MODEL_PATH'),
-        seed=69,
+        seed=int(os.getenv('SEED')),
         use_mlock=True,
         n_ctx=int(os.getenv('N_CTX')),
         n_gpu_layers=-1,
