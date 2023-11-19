@@ -18,6 +18,8 @@ You can setup LLamaTerm by:
 1) Rename `example.env` to `.env`
 2) Modify `.env` so that the model path corresponds (you may also need to edit `EOS` and `PREFIX_TEMPLATE`)
 3) Install python dependencies with `pip install -r requirements.txt`
+4) (AMDGPU) For reinstralling llama-cpp-python with HIP acceleration `CMAKE_ARGS="-DLLAMA_HIPBLAS=on -DAMDGPU_TARGETS=insert gpu arch or compatible arch" FORCE_CMAKE=1 CXX=/opt/rocm/bin/hipcc pip install llama-cpp-python --force-reinstall --upgrade --no-cache`, anyway for more info see [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
+
 
 ## Run
 Run LlamaTerm by adding the project directory to the `PATH` and then running `llamaterm`
