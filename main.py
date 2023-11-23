@@ -42,7 +42,7 @@ def format_text(text: str) -> str:
 
 
 def inject_file(text: str) -> str:
-    match_filename = r'\[(\S*\.\S+)\]'
+    match_filename = r'\[(\S*\.\S+)\]'  # TODO Support spaces
     pattern = re.compile(match_filename)
     filenames: list[str] = pattern.findall(text)
 
@@ -61,9 +61,10 @@ def inject_file(text: str) -> str:
 
 def file_to_markdown(filename: str) -> str:
     path = WORKING_DIR + '/' + filename
+    extension = os.path.splitext(filename)[1][1:]
     with open(path, 'r') as f:
         text = f.read().strip()
-    return f'Content of {filename}:\n```{os.path.splitext(filename)[1][1:]}\n{text}\n```'
+    return f'Content of {filename}:\n```{extension}\n{text}\n```'
 
 
 if __name__ == '__main__':
