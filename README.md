@@ -1,5 +1,6 @@
 # LlamaTerm
 LlamaTerm is a simple CLI utility that allows to use local LLM models easily and with additional features.
+> :warning: Currently this project supports only [**Zephyr Beta 7B GGUF**](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/tree/main)
 
 ## Preview
 ### Basic usage:
