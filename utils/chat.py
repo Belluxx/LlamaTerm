@@ -159,3 +159,7 @@ class Chat:
         print(f'Tokens used: {self.tokens_used()}')
         print(f'Tokens left: {self.context_available()}')
         print(f'Tokens generated per second: {self.n_tokens_generated / self.generation_time:.2f}')
+    
+    
+    def get_raw_chat(self) -> str:
+        return self.model.detokenize(self.tokens).decode("UTF-8")
