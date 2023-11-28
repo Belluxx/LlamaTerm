@@ -75,6 +75,9 @@ class Chat:
 
             reply = self.model.detokenize([token]).decode('UTF-8')
             full_reply += reply
+
+            interrupt, full_reply = self.check_eos_failure(full_reply)
+            if interrupt: break
             
             interrupt, full_reply = self.check_model_impersonation(full_reply, 'user')
             if interrupt: break
@@ -112,6 +115,11 @@ class Chat:
 
             reply = self.model.detokenize([token]).decode('UTF-8')
             full_reply += reply
+
+            interrupt, full_reply = self.check_eos_failure(full_reply)
+            if interrupt:
+                # TODO Clean the output that may include the EOS
+                break
             
             interrupt, full_reply = self.check_model_impersonation(full_reply, 'user')
             if interrupt:
@@ -127,6 +135,14 @@ class Chat:
             
         self.generation_time += time() - start_time
         self.n_tokens_generated += n_current_tokens
+
+
+    def check_eos_failure(self, full_reply: str) -> tuple[bool, str]:
+        interrupt = False
+        if full_reply[-len(self.eos):] == self.eos:
+            full_reply = full_reply[:-len(self.eos)]
+            interrupt = True
+        return interrupt, full_reply
 
 
     def check_model_impersonation(self, full_reply: str, actor: str) -> tuple[bool, str]:
