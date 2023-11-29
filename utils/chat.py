@@ -22,13 +22,15 @@ class Chat:
                 'assistant': 'assistant',
                 'user': 'user'
             }, 
-            n_generate=1000
+            n_generate=1000,
+            debug=False
     ) -> None:
         self.model = model
         self.tags = tags
         self.prefixes = prefixes
         self.eos = eos
         self.n_generate = n_generate
+        self.debug = debug
         self.messages: list[Message] = []
         self.tokens: list[int] = []
         self.generation_time = 0
@@ -63,6 +65,7 @@ class Chat:
         
         start_time = time()
         for token in self.model.generate(tokens=self.tokens):
+            if self.debug: print(f'{token}\t{self.model.detokenize([token]).decode("UTF-8")}')
             if token == self.model.token_eos():
                 break
             if n_current_tokens >= self.n_generate:
@@ -140,16 +143,20 @@ class Chat:
     def check_eos_failure(self, full_reply: str) -> tuple[bool, str]:
         interrupt = False
         if full_reply[-len(self.eos):] == self.eos:
+            if self.debug: print(f'[DEBUG] EOS escape occurred: {full_reply[-len(self.eos):]}')
             full_reply = full_reply[:-len(self.eos)]
             interrupt = True
+
         return interrupt, full_reply
 
 
     def check_model_impersonation(self, full_reply: str, actor: str) -> tuple[bool, str]:
         interrupt = False
         if self.prefixes[actor] in full_reply:
+            if self.debug: print(f'[DEBUG] Impersonation of {actor} detected')
             full_reply = full_reply.split(self.prefixes[actor])[0].strip()
             interrupt = True
+            
         return interrupt, full_reply
 
 

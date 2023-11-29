@@ -87,7 +87,8 @@ if __name__ == '__main__':
         model=llama,
         prefixes=prefixes,
         eos=EOS,
-        n_generate=N_GENERATE
+        n_generate=N_GENERATE,
+        debug=False
     )
 
     chat.add_message(role=SYSTEM_TAG, content=SYSTEM_PROMPT)
