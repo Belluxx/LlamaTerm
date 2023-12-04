@@ -68,6 +68,7 @@ def file_to_markdown(filename: str) -> str:
 
 
 if __name__ == '__main__':
+    print(f'{INFO_DN}: Loading model: {os.getenv("MODEL_PATH").split("/")[-1]}')
     llama = Llama(
         model_path=os.getenv('MODEL_PATH'),
         seed=int(os.getenv('SEED')),
@@ -91,7 +92,6 @@ if __name__ == '__main__':
         debug=False
     )
 
-    print(f'{INFO_DN}: Loading model: {os.getenv("MODEL_PATH").split("/")[-1]}')
     chat.add_message(role=SYSTEM_TAG, content=SYSTEM_PROMPT)
     print(f'{SYSTEM_DN}: {SYSTEM_PROMPT}')
     chat.add_message(role=ASSISTANT_TAG, content=ASSISTANT_INITIAL_MESSAGE)
