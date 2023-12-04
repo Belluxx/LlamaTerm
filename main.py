@@ -91,25 +91,29 @@ if __name__ == '__main__':
         debug=False
     )
 
+    print(f'{INFO_DN}: Loading model: {os.getenv("MODEL_PATH").split("/")[-1]}')
     chat.add_message(role=SYSTEM_TAG, content=SYSTEM_PROMPT)
     print(f'{SYSTEM_DN}: {SYSTEM_PROMPT}')
     chat.add_message(role=ASSISTANT_TAG, content=ASSISTANT_INITIAL_MESSAGE)
     print(f'{ASSISTANT_DN}: {ASSISTANT_INITIAL_MESSAGE}')
 
     last_message = ''
-    while 1:
-        last_message = input(f'{USER_DN}: ').strip()
-        if len(last_message) == 0: continue
-        if last_message == EXIT: break
+    try:
+        while 1:
+            last_message = input(f'{USER_DN}: ').strip()
+            if len(last_message) == 0: continue
+            if last_message == EXIT: break
 
-        last_message = inject_file(last_message)
-        free_ctx = chat.add_message(USER_TAG, last_message)
-        if free_ctx <= CONTEXT_WARNING:
-            print(f'{INFO_DN}: context is nearly finished ({free_ctx} tokens left)')
-        
-        print(f'{ASSISTANT_DN}: ', end='', flush=True)
-        reply, free_ctx = chat.generate_reply()
-        print(format_text(reply))
+            last_message = inject_file(last_message)
+            free_ctx = chat.add_message(USER_TAG, last_message)
+            if free_ctx <= CONTEXT_WARNING:
+                print(f'{INFO_DN}: context is nearly finished ({free_ctx} tokens left)')
+            
+            print(f'{ASSISTANT_DN}: ', end='', flush=True)
+            reply, free_ctx = chat.generate_reply()
+            print(format_text(reply))
+    except KeyboardInterrupt:
+        print()
     
     chat.print_stats()
 
