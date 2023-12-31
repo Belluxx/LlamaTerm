@@ -1,6 +1,6 @@
 # LlamaTerm
 LlamaTerm is a simple CLI utility that allows to use local LLM models easily and with additional features.
-> :warning: Currently this project supports only Zephyr and OpenHermes (see [Zephyr Beta 7B GGUF](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/tree/main) and [OpenHermes 2.5 Mistral 7B GGUF](https://huggingface.co/TheBloke/OpenHermes-2.5-Mistral-7B-GGUF/tree/main))
+> :warning: Currently this project supports models that use ChatML format or something similar. Use for example Zephyr and OpenHermes (see [Zephyr Beta 7B GGUF](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/tree/main) and [OpenHermes 2.5 Mistral 7B GGUF](https://huggingface.co/TheBloke/OpenHermes-2.5-Mistral-7B-GGUF/tree/main))
 
 ## Preview
 ### Basic usage:
@@ -26,7 +26,7 @@ You can setup LLamaTerm by:
 ## Run
 Run LlamaTerm by adding the project directory to the `PATH` and then running `llamaterm`
 
-## Models supported
+## Models supported out of the box
 Remember to use the correct `.env` file for the model that you use
 * [Zephyr Beta 7B GGUF](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/tree/main) [**RECOMMENDED**]
 * [OpenHermes 2.5 Mistral 7B GGUF](https://huggingface.co/TheBloke/OpenHermes-2.5-Mistral-7B-GGUF/tree/main) [**RECOMMENDED**]
