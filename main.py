@@ -136,4 +136,7 @@ if __name__ == '__main__':
         print()
     
     chat.print_stats()
-
+    
+    # Fixes "ValueError: I/O operation on closed file" in llama-cpp-python >= 0.2.30
+    chat.delete()
+    del llama

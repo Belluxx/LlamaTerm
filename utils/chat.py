@@ -189,3 +189,6 @@ class Chat:
     
     def get_raw_chat(self) -> str:
         return self.model.detokenize(self.tokens).decode("UTF-8")
+    
+    def delete(self):
+        del self.model
