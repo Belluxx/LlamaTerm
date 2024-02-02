@@ -24,7 +24,7 @@ else:
     print(f'{ERROR_DN}: cannot read .env file.')
     exit(1)
 
-REAL_TIME = os.getenv('REAL_TIME')
+REAL_TIME = int(os.getenv('REAL_TIME'))
 SYSTEM_PROMPT = os.getenv('SYSTEM_PROMPT')
 ASSISTANT_INITIAL_MESSAGE = os.getenv('ASSISTANT_INITIAL_MESSAGE')
 PREFIX_TEMPLATE = os.getenv('PREFIX_TEMPLATE')
@@ -124,14 +124,13 @@ if __name__ == '__main__':
             
 
             print(f'{ASSISTANT_DN}: ', end='', flush=True)
-            if REAL_TIME:
+            if REAL_TIME == 0:
+                reply, free_ctx = chat.generate_reply()
+                print(format_text(reply))
+            else:
                 for token in chat.generate_reply_stepped():
                     print(token, end='', flush=True)
                     free_ctx -= 1  # TODO Check if correct for EOS fixes that do not count as additional tokens
-            else:
-                reply, free_ctx = chat.generate_reply()
-                print(format_text(reply))
-            
     except KeyboardInterrupt:
         print()
     
