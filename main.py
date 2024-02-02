@@ -9,12 +9,20 @@ from llama_cpp import Llama
 from utils.ansi import AnsiCodes as AC
 from utils.chat import Chat
 
-load_dotenv('.env')
+ENV_FILE = '.env'
 
 EXIT = 'exit'
 SYSTEM_TAG = 'system'
 USER_TAG = 'user'
 ASSISTANT_TAG = 'assistant'
+
+ERROR_DN = f'{AC.FG_RED}{AC.BOLD}Error{AC.RESET}'
+
+if os.path.isfile(ENV_FILE):
+    load_dotenv(ENV_FILE)
+else:
+    print(f'{ERROR_DN}: cannot read .env file.')
+    exit(1)
 
 SYSTEM_PROMPT = os.getenv('SYSTEM_PROMPT')
 ASSISTANT_INITIAL_MESSAGE = os.getenv('ASSISTANT_INITIAL_MESSAGE')
@@ -69,14 +77,18 @@ def file_to_markdown(filename: str) -> str:
 
 if __name__ == '__main__':
     print(f'{INFO_DN}: Loading model: {os.getenv("MODEL_PATH").split("/")[-1]}')
-    llama = Llama(
-        model_path=os.getenv('MODEL_PATH'),
-        seed=int(os.getenv('SEED')),
-        use_mlock=True,
-        n_ctx=int(os.getenv('N_CTX')),
-        n_gpu_layers=-1,
-        verbose=False
-    )
+    try:
+        llama = Llama(
+            model_path=os.getenv('MODEL_PATH'),
+            seed=int(os.getenv('SEED')),
+            use_mlock=True,
+            n_ctx=int(os.getenv('N_CTX')),
+            n_gpu_layers=-1,
+            verbose=False
+        )
+    except ValueError as e:
+        print(f"{ERROR_DN}: The model specified in the .env file does not exist: '{os.getenv('MODEL_PATH')}'.")
+        exit(1)
 
     prefixes = {
         'system': BEGIN_SYSTEM,
