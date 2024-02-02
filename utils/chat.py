@@ -121,7 +121,10 @@ class Chat:
 
             interrupt, full_reply = self.check_eos_failure(full_reply)
             if interrupt:
-                # TODO Clean the output that may include the EOS
+                n_char_to_delete = len(self.eos) - 1
+                back_str = '\b' * n_char_to_delete
+                empty_str = ' ' * n_char_to_delete
+                yield back_str + empty_str + '\n'
                 break
             
             interrupt, full_reply = self.check_model_impersonation(full_reply, 'user')
