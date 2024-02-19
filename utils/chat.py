@@ -145,7 +145,7 @@ class Chat:
 
     def check_eos_failure(self, full_reply: str) -> tuple[bool, str]:
         interrupt = False
-        if full_reply[-len(self.eos):] == self.eos:
+        if self.eos in full_reply[-(len(self.eos)+1):]:
             if self.debug: print(f'[DEBUG] EOS escape occurred: {full_reply[-len(self.eos):]}')
             full_reply = full_reply[:-len(self.eos)]
             interrupt = True
