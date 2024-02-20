@@ -38,7 +38,6 @@ class Chat:
 
 
     def add_message(self, agent: str, content: str) -> int:
-        print(f'add_message(self, {agent}, {content})')
         new_message = Message(role=agent, content=content)
         self.messages.append(new_message)
 
@@ -49,8 +48,6 @@ class Chat:
             wrapped_content = f'{wrapped_content}\n{self.prefixes["user"]}\n'
         elif agent == self.agents['user']:
             wrapped_content = f'{wrapped_content}\n{self.prefixes["assistant"]}\n'
-
-        print(f'wrapped: {wrapped_content}')
 
         new_tokens = self.tokenize_text(wrapped_content)
         self.tokens += new_tokens
@@ -156,11 +153,11 @@ class Chat:
         return interrupt, full_reply
 
 
-    def check_model_impersonation(self, full_reply: str, actor: str) -> tuple[bool, str]:
+    def check_model_impersonation(self, full_reply: str, agent: str) -> tuple[bool, str]:
         interrupt = False
-        if self.prefixes[actor] in full_reply:
-            if self.debug: print(f'[DEBUG] Impersonation of {actor} detected')
-            full_reply = full_reply.split(self.prefixes[actor])[0].strip()
+        if self.prefixes[agent] in full_reply:
+            if self.debug: print(f'[DEBUG] Impersonation of {agent} detected')
+            full_reply = full_reply.split(self.prefixes[agent])[0].strip()
             interrupt = True
 
         return interrupt, full_reply
@@ -192,6 +189,7 @@ class Chat:
 
     def get_raw_chat(self) -> str:
         return self.model.detokenize(self.tokens).decode("UTF-8")
+
 
     def delete(self):
         del self.model
