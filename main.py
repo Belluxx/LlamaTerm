@@ -9,12 +9,8 @@ from llama_cpp import Llama
 from utils.ansi import AnsiCodes as AC
 from utils.chat import Chat
 
+DEBUG = False
 ENV_FILE = '.env'
-
-EXIT = 'exit'
-SYSTEM_TAG = 'system'
-USER_TAG = 'user'
-ASSISTANT_TAG = 'assistant'
 
 ERROR_DN = f'{AC.FG_RED}{AC.BOLD}Error{AC.RESET}'
 
@@ -23,6 +19,11 @@ if os.path.isfile(ENV_FILE):
 else:
     print(f'{ERROR_DN}: cannot read .env file.')
     exit(1)
+
+EXIT = 'exit'
+AGENT_SYSTEM = os.getenv('SYSTEM_AGENT')
+AGENT_USER = os.getenv('USER_AGENT')
+AGENT_ASSISTANT = os.getenv('ASSISTANT_AGENT')
 
 REAL_TIME = int(os.getenv('REAL_TIME'))
 SYSTEM_PROMPT = os.getenv('SYSTEM_PROMPT')
@@ -36,9 +37,9 @@ USER_DN = f'{AC.FG_RED}{AC.BOLD}User{AC.RESET}'
 ASSISTANT_DN = f'{AC.FG_YELLOW}{AC.BOLD}Assistant{AC.RESET}'
 INFO_DN = f'{AC.FG_GREEN}{AC.BOLD}Info{AC.RESET}'
 
-BEGIN_USER = PREFIX_TEMPLATE.replace('{agent}', USER_TAG)
-BEGIN_ASSISTANT = PREFIX_TEMPLATE.replace('{agent}', ASSISTANT_TAG)
-BEGIN_SYSTEM = PREFIX_TEMPLATE.replace('{agent}', SYSTEM_TAG)
+BEGIN_USER = PREFIX_TEMPLATE.replace('{agent}', AGENT_USER)
+BEGIN_ASSISTANT = PREFIX_TEMPLATE.replace('{agent}', AGENT_ASSISTANT)
+BEGIN_SYSTEM = PREFIX_TEMPLATE.replace('{agent}', AGENT_SYSTEM)
 WORKING_DIR = sys.argv[1] if len(sys.argv) == 2 else os.getcwd()
 CONTEXT_WARNING = min(500, N_GENERATE)
 
@@ -64,7 +65,7 @@ def inject_file(text: str) -> str:
             continue
         print(f'{INFO_DN}: Faled injecting: {filename} does not exist.')
         new_text += f'\n\nFile {filename} does not exist.'
-    
+
     return new_text
 
 
@@ -97,17 +98,24 @@ if __name__ == '__main__':
         'user': BEGIN_USER
     }
 
+    agents = {
+        'system': AGENT_SYSTEM,
+        'assistant': AGENT_ASSISTANT,
+        'user': AGENT_USER
+    }
+
     chat = Chat(
         model=llama,
         prefixes=prefixes,
+        agents=agents,
         eos=EOS,
         n_generate=N_GENERATE,
-        debug=False
+        debug=DEBUG
     )
 
-    chat.add_message(role=SYSTEM_TAG, content=SYSTEM_PROMPT)
+    chat.add_message(agent=AGENT_SYSTEM, content=SYSTEM_PROMPT)
     print(f'{SYSTEM_DN}: {SYSTEM_PROMPT}')
-    chat.add_message(role=ASSISTANT_TAG, content=ASSISTANT_INITIAL_MESSAGE)
+    chat.add_message(agent=AGENT_ASSISTANT, content=ASSISTANT_INITIAL_MESSAGE)
     print(f'{ASSISTANT_DN}: {ASSISTANT_INITIAL_MESSAGE}')
 
     last_message = ''
@@ -118,10 +126,9 @@ if __name__ == '__main__':
             if last_message == EXIT: break
 
             last_message = inject_file(last_message)
-            free_ctx = chat.add_message(USER_TAG, last_message)
+            free_ctx = chat.add_message(AGENT_USER, last_message)
             if free_ctx <= CONTEXT_WARNING:
                 print(f'{INFO_DN}: context is nearly finished ({free_ctx} tokens left)')
-            
 
             print(f'{ASSISTANT_DN}: ', end='', flush=True)
             if REAL_TIME == 0:
@@ -133,9 +140,10 @@ if __name__ == '__main__':
                     free_ctx -= 1  # TODO Check if correct for EOS fixes that do not count as additional tokens
     except KeyboardInterrupt:
         print()
-    
+
     chat.print_stats()
-    
+    if DEBUG: print(chat.get_raw_chat())
+
     # Fixes "ValueError: I/O operation on closed file" in llama-cpp-python >= 0.2.30
     chat.delete()
     del llama
