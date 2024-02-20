@@ -73,8 +73,7 @@ class Chat:
             if free_context - n_current_tokens <= 0:
                 self.context_exceeded()
 
-            self.tokens.append(token)
-            n_current_tokens += 1
+            self.append_raw_tokens([token])
 
             reply = self.model.detokenize([token]).decode('UTF-8')
             full_reply += reply
@@ -87,6 +86,8 @@ class Chat:
 
             interrupt, full_reply = self.check_model_impersonation(full_reply, 'system')
             if interrupt: break
+
+        self.append_raw_text(f'\n{self.prefixes["user"]}\n')  # TODO Temporary fix for missing user prefix
 
         self.generation_time += time() - start_time
         self.n_tokens_generated += n_current_tokens
@@ -113,8 +114,7 @@ class Chat:
             if free_context - n_current_tokens <= 0:
                 self.context_exceeded()
 
-            self.tokens.append(token)
-            n_current_tokens += 1
+            self.append_raw_tokens([token])
 
             reply = self.model.detokenize([token]).decode('UTF-8')
             full_reply += reply
@@ -138,6 +138,8 @@ class Chat:
                 break
 
             yield reply
+
+        self.append_raw_text(f'\n{self.prefixes["user"]}\n')  # TODO Temporary fix for missing user prefix
 
         self.generation_time += time() - start_time
         self.n_tokens_generated += n_current_tokens
@@ -185,6 +187,15 @@ class Chat:
         print(f'Tokens used: {self.tokens_used()}')
         print(f'Tokens left: {self.context_available()}')
         print(f'Tokens generated per second: {self.n_tokens_generated / self.generation_time:.2f}')
+
+
+    def append_raw_text(self, new_text: str):
+        self.append_raw_tokens(self.tokenize_text(new_text))
+
+
+    def append_raw_tokens(self, new_tokens: list[int]):
+        self.tokens += new_tokens
+        self.n_tokens_generated += len(new_tokens)
 
 
     def get_raw_chat(self) -> str:
