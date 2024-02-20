@@ -11,26 +11,39 @@ from utils.chat import Chat
 
 DEBUG = False
 ENV_FILE = '.env'
-
+EXIT = 'exit'
 ERROR_DN = f'{AC.FG_RED}{AC.BOLD}Error{AC.RESET}'
 
+def throw_error(msg: str, code: int = 1) -> None:
+    print(f'{ERROR_DN}: {msg}')
+    exit(code)
+
+def get_env_and_check(key: str) -> str:
+    value = os.getenv(key)
+    if value is None:
+        throw_error(f'missing .env field \'{key}\'', 2)
+
+    return str(value)
+
+# Check if .env exists and load it
 if os.path.isfile(ENV_FILE):
     load_dotenv(ENV_FILE)
 else:
-    print(f'{ERROR_DN}: cannot read .env file.')
-    exit(1)
+    throw_error('cannot read .env file.')
 
-EXIT = 'exit'
-AGENT_SYSTEM = os.getenv('SYSTEM_AGENT')
-AGENT_USER = os.getenv('USER_AGENT')
-AGENT_ASSISTANT = os.getenv('ASSISTANT_AGENT')
-
-REAL_TIME = int(os.getenv('REAL_TIME'))
-SYSTEM_PROMPT = os.getenv('SYSTEM_PROMPT')
-ASSISTANT_INITIAL_MESSAGE = os.getenv('ASSISTANT_INITIAL_MESSAGE')
-PREFIX_TEMPLATE = os.getenv('PREFIX_TEMPLATE')
-N_GENERATE = int(os.getenv('N_GENERATE'))
-EOS = os.getenv('EOS')
+# Load .env variables
+MODEL_PATH = get_env_and_check('MODEL_PATH')
+PREFIX_TEMPLATE = get_env_and_check('PREFIX_TEMPLATE')
+EOS = get_env_and_check('EOS')
+AGENT_SYSTEM = get_env_and_check('AGENT_SYSTEM')
+AGENT_USER = get_env_and_check('AGENT_USER')
+AGENT_ASSISTANT = get_env_and_check('AGENT_ASSISTANT')
+SYSTEM_PROMPT = get_env_and_check('SYSTEM_PROMPT')
+ASSISTANT_INITIAL_MESSAGE = get_env_and_check('ASSISTANT_INITIAL_MESSAGE')
+REAL_TIME = int(get_env_and_check('REAL_TIME'))
+N_CTX = int(get_env_and_check('N_CTX'))
+N_GENERATE = int(get_env_and_check('N_GENERATE'))
+SEED = int(get_env_and_check('SEED'))
 
 SYSTEM_DN = f'{AC.FG_CYAN}{AC.BOLD}System{AC.RESET}'
 USER_DN = f'{AC.FG_RED}{AC.BOLD}User{AC.RESET}'
@@ -78,19 +91,18 @@ def file_to_markdown(filename: str) -> str:
 
 
 if __name__ == '__main__':
-    print(f'{INFO_DN}: Loading model: {os.getenv("MODEL_PATH").split("/")[-1]}')
+    print(f'{INFO_DN}: Loading model: {MODEL_PATH.split("/")[-1]}')
     try:
         llama = Llama(
-            model_path=os.getenv('MODEL_PATH'),
-            seed=int(os.getenv('SEED')),
+            model_path=MODEL_PATH,
+            seed=SEED,
             use_mlock=True,
-            n_ctx=int(os.getenv('N_CTX')),
+            n_ctx=N_CTX,
             n_gpu_layers=-1,
             verbose=False
         )
     except ValueError as e:
-        print(f"{ERROR_DN}: The model specified in the .env file does not exist: '{os.getenv('MODEL_PATH')}'.")
-        exit(1)
+        throw_error(f"the model path specified in the .env file is not valid: '{MODEL_PATH}'")
 
     prefixes = {
         'system': BEGIN_SYSTEM,
