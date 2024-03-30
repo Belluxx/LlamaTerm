@@ -40,10 +40,13 @@ AGENT_USER = get_env_and_check('AGENT_USER')
 AGENT_ASSISTANT = get_env_and_check('AGENT_ASSISTANT')
 SYSTEM_PROMPT = get_env_and_check('SYSTEM_PROMPT')
 ASSISTANT_INITIAL_MESSAGE = get_env_and_check('ASSISTANT_INITIAL_MESSAGE')
-REAL_TIME = int(get_env_and_check('REAL_TIME'))
+REAL_TIME = bool(int(get_env_and_check('REAL_TIME')))
 N_CTX = int(get_env_and_check('N_CTX'))
 N_GENERATE = int(get_env_and_check('N_GENERATE'))
 SEED = int(get_env_and_check('SEED'))
+USE_MMAP = bool(int(get_env_and_check('USE_MMAP')))
+USE_MLOCK = bool(int(get_env_and_check('USE_MLOCK')))
+USE_GPU = bool(int(get_env_and_check('USE_GPU')))
 
 SYSTEM_DN = f'{AC.FG_CYAN}{AC.BOLD}System{AC.RESET}'
 USER_DN = f'{AC.FG_RED}{AC.BOLD}User{AC.RESET}'
@@ -96,10 +99,11 @@ if __name__ == '__main__':
         llama = Llama(
             model_path=MODEL_PATH,
             seed=SEED,
-            use_mlock=True,
+            use_mlock=USE_MLOCK,
+            use_mmap=USE_MMAP,
             n_ctx=N_CTX,
-            n_gpu_layers=-1,
-            verbose=False
+            n_gpu_layers=-1 if USE_GPU else 0,
+            verbose=DEBUG
         )
     except ValueError as e:
         throw_error(f"the model path specified in the .env file is not valid: '{MODEL_PATH}'")
@@ -143,7 +147,7 @@ if __name__ == '__main__':
                 print(f'{INFO_DN}: context is nearly finished ({free_ctx} tokens left)')
 
             print(f'{ASSISTANT_DN}: ', end='', flush=True)
-            if REAL_TIME == 0:
+            if not REAL_TIME:
                 reply, free_ctx = chat.generate_reply()
                 print(format_text(reply))
             else:
