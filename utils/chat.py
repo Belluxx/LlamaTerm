@@ -44,7 +44,7 @@ class Chat:
 
         wrapped_content: str = new_message.content + self.eos
         if agent == self.agents['system']:
-            wrapped_content = f'{self.prefixes["system"]}\n{wrapped_content}\n{self.prefixes["assistant"]}\n'
+            wrapped_content = f'{self.prefixes["system"]}\n{wrapped_content}\n{self.prefixes["assistant"]}\n'  # FIXME This works only if system and then assistant is provided
         elif agent == self.agents['assistant']:
             wrapped_content = f'{wrapped_content}\n{self.prefixes["user"]}\n'
         elif agent == self.agents['user']:
