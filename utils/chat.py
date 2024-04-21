@@ -17,6 +17,7 @@ class Chat:
             self,
             model: Llama,
             prefixes: dict[str, str],
+            bot: str,
             eos: str,
             agents: dict[str, str] = {
                 'system': 'system',
@@ -29,6 +30,7 @@ class Chat:
         self.model = model
         self.agents = agents
         self.prefixes = prefixes
+        self.bot = bot
         self.eos = eos
         self.n_generate = n_generate
         self.debug = debug
@@ -44,7 +46,7 @@ class Chat:
 
         wrapped_content: str = new_message.content + self.eos
         if agent == self.agents['system']:
-            wrapped_content = f'{self.prefixes["system"]}\n{wrapped_content}\n{self.prefixes["assistant"]}\n'  # FIXME This works only if system and then assistant is provided
+            wrapped_content = f'{self.bot}{self.prefixes["system"]}\n{wrapped_content}\n{self.prefixes["assistant"]}\n'  # FIXME This works only if system and then assistant is provided
         elif agent == self.agents['assistant']:
             wrapped_content = f'{wrapped_content}\n{self.prefixes["user"]}\n'
         elif agent == self.agents['user']:

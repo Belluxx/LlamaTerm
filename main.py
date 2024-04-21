@@ -33,6 +33,7 @@ else:
 
 # Load .env variables
 MODEL_PATH = get_env_and_check('MODEL_PATH')
+BOT = get_env_and_check('BOT')
 PREFIX_TEMPLATE = get_env_and_check('PREFIX_TEMPLATE')
 EOS = get_env_and_check('EOS')
 AGENT_SYSTEM = get_env_and_check('AGENT_SYSTEM')
@@ -124,6 +125,7 @@ if __name__ == '__main__':
         model=llama,
         prefixes=prefixes,
         agents=agents,
+        bot=BOT,
         eos=EOS,
         n_generate=N_GENERATE,
         debug=DEBUG
