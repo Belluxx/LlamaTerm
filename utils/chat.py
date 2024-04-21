@@ -209,7 +209,6 @@ class Chat:
 
     def append_raw_tokens(self, new_tokens: list[int]):
         self.tokens += new_tokens
-        self.n_tokens_generated += len(new_tokens)
 
 
     def get_raw_chat(self) -> str:
