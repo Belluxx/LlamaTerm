@@ -88,6 +88,8 @@ class Chat:
             interrupt, full_reply = self.check_model_impersonation(full_reply, 'system')
             if interrupt: break
 
+            n_current_tokens += 1
+
         self.append_raw_text(f'\n{self.prefixes["user"]}\n')  # TODO Temporary fix for missing user prefix
 
         self.generation_time += time() - start_time
@@ -137,6 +139,8 @@ class Chat:
             if interrupt:
                 yield self.CLEAR_CURRENT_LINE
                 break
+
+            n_current_tokens += 1
 
             yield reply
 
