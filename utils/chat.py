@@ -215,6 +215,13 @@ class Chat:
 
     def get_raw_chat(self) -> str:
         return self.model.detokenize(self.tokens).decode("UTF-8")
+    
+    
+    def reset(self):
+        self.messages = []
+        self.tokens = []
+        self.generation_time = 0
+        self.n_tokens_generated = 0
 
 
     def delete(self):
