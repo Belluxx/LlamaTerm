@@ -68,7 +68,7 @@ def format_text(text: str) -> str:
     return pygments.highlight(text, lexer, formatter)
 
 
-def inject_file(text: str) -> str:
+def inject_file(text: str) -> str:  # TODO Check if path is absolute. If so, don't append the working dir
     match_filename = r'\[(\S*\.\S+)\]'  # TODO Support spaces
     pattern = re.compile(match_filename)
     filenames: list[str] = pattern.findall(text)
