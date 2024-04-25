@@ -1,5 +1,5 @@
 from time import time
-from llama_cpp import Llama
+from llama_cpp import Llama, LlamaGrammar
 
 
 class Message:
@@ -58,7 +58,7 @@ class Chat:
         return self.context_available()
 
 
-    def generate_reply(self) -> tuple[str, int]:
+    def generate_reply(self, grammar: LlamaGrammar = None) -> tuple[str, int]:
         full_reply = ""
         n_current_tokens = 0
         free_context = self.context_available()
@@ -67,7 +67,7 @@ class Chat:
             self.context_exceeded()
 
         start_time = time()
-        for token in self.model.generate(tokens=self.tokens):
+        for token in self.model.generate(tokens=self.tokens, grammar=grammar):
             if self.debug: print(f'{token}\t{self.detokenize_text([token])}')
             if token == self.model.token_eos():
                 break
@@ -100,7 +100,7 @@ class Chat:
         return full_reply, self.context_available()
 
 
-    def generate_reply_stepped(self):
+    def generate_reply_stepped(self, grammar: LlamaGrammar = None):
         full_reply = ""
         n_current_tokens = 0
         free_context = self.context_available()
@@ -109,7 +109,7 @@ class Chat:
             self.context_exceeded()
 
         start_time = time()
-        for token in self.model.generate(tokens=self.tokens):
+        for token in self.model.generate(tokens=self.tokens, grammar=grammar):
             if token == self.model.token_eos():
                 yield '\n'
                 break
