@@ -1,6 +1,6 @@
 # LlamaTerm
-LlamaTerm is a simple CLI utility that allows to use local LLM models easily and with additional features.
-> :warning: Currently this project supports models that use ChatML format or something similar. Use for example Zephyr and OpenHermes (see [Zephyr Beta 7B GGUF](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/tree/main) and [OpenHermes 2.5 Mistral 7B GGUF](https://huggingface.co/TheBloke/OpenHermes-2.5-Mistral-7B-GGUF/tree/main))
+LlamaTerm is a simple CLI utility that allows to use local LLM models easily and with some additional features.
+> :warning: Currently this project supports models that use ChatML format or something similar. Use for example [Phi-3-mini](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf) and [LLama3](https://huggingface.co/bartowski/Meta-Llama-3-8B-Instruct-GGUF) GGUFs.
 
 ## Preview
 ### Basic usage:
@@ -27,9 +27,10 @@ You can setup LLamaTerm by:
 Run LlamaTerm by adding the project directory to the `PATH` and then running `llamaterm`
 
 ## Models supported out of the box
-Remember to use the correct `.env` file for the model that you use
-* [Zephyr Beta 7B GGUF](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/tree/main) [**RECOMMENDED**]
-* [OpenHermes 2.5 Mistral 7B GGUF](https://huggingface.co/TheBloke/OpenHermes-2.5-Mistral-7B-GGUF/tree/main) [**RECOMMENDED**]
-* [Zephyr Alpha 7B GGUF](https://huggingface.co/TheBloke/zephyr-7B-alpha-GGUF/tree/main)
+For the following models you will just need to rename the corresponding example `example-*.env` file to `.env`:
+* [LLama3 8B Instruct](https://huggingface.co/bartowski/Meta-Llama-3-8B-Instruct-GGUF) [**RECOMMENDED**]
+* [Phi 3 Mini Instruct](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf) [**RECOMMENDED**]
+* [OpenHermes 2.5 Mistral 7B GGUF](https://huggingface.co/TheBloke/OpenHermes-2.5-Mistral-7B-GGUF/tree/main)
+* [Zephyr Beta 7B GGUF](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/tree/main)
 
-All other models that have a prompt template similar to ChatML are supported but you need to customize `PREFIX_TEMPLATE` and `EOS` in the `.env`.
+All the other models that have a prompt template similar to ChatML are supported but you will need to customize some fields like `PREFIX_TEMPLATE`, `EOS` etc... in the `.env`.
