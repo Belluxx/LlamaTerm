@@ -58,7 +58,7 @@ class Chat:
         return self.context_available()
 
 
-    def generate_reply(self, grammar: LlamaGrammar = None) -> tuple[str, int]:
+    def generate_reply(self, grammar: LlamaGrammar | None = None) -> tuple[str, int]:
         full_reply = ""
         n_current_tokens = 0
         free_context = self.context_available()
@@ -100,7 +100,7 @@ class Chat:
         return full_reply, self.context_available()
 
 
-    def generate_reply_stepped(self, grammar: LlamaGrammar = None):
+    def generate_reply_stepped(self, grammar: LlamaGrammar | None = None):
         full_reply = ""
         n_current_tokens = 0
         free_context = self.context_available()
@@ -215,8 +215,8 @@ class Chat:
 
     def get_raw_chat(self) -> str:
         return self.model.detokenize(self.tokens).decode("UTF-8")
-    
-    
+
+
     def reset(self):
         self.messages = []
         self.tokens = []
