@@ -32,33 +32,33 @@ else:
     throw_error('cannot read .env file.')
 
 # Load .env variables
-MODEL_PATH = get_env_and_check('MODEL_PATH')
-BOT = get_env_and_check('BOT')
-PREFIX_TEMPLATE = get_env_and_check('PREFIX_TEMPLATE')
-EOS = get_env_and_check('EOS')
-AGENT_SYSTEM = get_env_and_check('AGENT_SYSTEM')
-AGENT_USER = get_env_and_check('AGENT_USER')
-AGENT_ASSISTANT = get_env_and_check('AGENT_ASSISTANT')
-SYSTEM_PROMPT = get_env_and_check('SYSTEM_PROMPT')
+MODEL_PATH =                get_env_and_check('MODEL_PATH')
+BOT =                       get_env_and_check('BOT')
+PREFIX_TEMPLATE =           get_env_and_check('PREFIX_TEMPLATE')
+EOS =                       get_env_and_check('EOS')
+AGENT_SYSTEM =              get_env_and_check('AGENT_SYSTEM')
+AGENT_USER =                get_env_and_check('AGENT_USER')
+AGENT_ASSISTANT =           get_env_and_check('AGENT_ASSISTANT')
+SYSTEM_PROMPT =             get_env_and_check('SYSTEM_PROMPT')
 ASSISTANT_INITIAL_MESSAGE = get_env_and_check('ASSISTANT_INITIAL_MESSAGE')
-REAL_TIME = bool(int(get_env_and_check('REAL_TIME')))
-N_CTX = int(get_env_and_check('N_CTX'))
-N_GENERATE = int(get_env_and_check('N_GENERATE'))
-SEED = int(get_env_and_check('SEED'))
-USE_MMAP = bool(int(get_env_and_check('USE_MMAP')))
-USE_MLOCK = bool(int(get_env_and_check('USE_MLOCK')))
-USE_GPU = bool(int(get_env_and_check('USE_GPU')))
+REAL_TIME =                 bool(int(get_env_and_check('REAL_TIME')))
+N_CTX =                     int(get_env_and_check('N_CTX'))
+N_GENERATE =                int(get_env_and_check('N_GENERATE'))
+SEED =                      int(get_env_and_check('SEED'))
+USE_MMAP =                  bool(int(get_env_and_check('USE_MMAP')))
+USE_MLOCK =                 bool(int(get_env_and_check('USE_MLOCK')))
+USE_GPU =                   bool(int(get_env_and_check('USE_GPU')))
 
-SYSTEM_DN = f'{AC.FG_CYAN}{AC.BOLD}System{AC.RESET}'
-USER_DN = f'{AC.FG_RED}{AC.BOLD}User{AC.RESET}'
-ASSISTANT_DN = f'{AC.FG_YELLOW}{AC.BOLD}Assistant{AC.RESET}'
-INFO_DN = f'{AC.FG_GREEN}{AC.BOLD}Info{AC.RESET}'
+SYSTEM_DN =                 f'{AC.FG_CYAN}{AC.BOLD}System{AC.RESET}'
+USER_DN =                   f'{AC.FG_RED}{AC.BOLD}User{AC.RESET}'
+ASSISTANT_DN =              f'{AC.FG_YELLOW}{AC.BOLD}Assistant{AC.RESET}'
+INFO_DN =                   f'{AC.FG_GREEN}{AC.BOLD}Info{AC.RESET}'
 
-BEGIN_USER = PREFIX_TEMPLATE.replace('{agent}', AGENT_USER)
-BEGIN_ASSISTANT = PREFIX_TEMPLATE.replace('{agent}', AGENT_ASSISTANT)
-BEGIN_SYSTEM = PREFIX_TEMPLATE.replace('{agent}', AGENT_SYSTEM)
-WORKING_DIR = sys.argv[1] if len(sys.argv) == 2 else os.getcwd()
-CONTEXT_WARNING = min(500, N_GENERATE)
+BEGIN_USER =                PREFIX_TEMPLATE.replace('{agent}', AGENT_USER)
+BEGIN_ASSISTANT =           PREFIX_TEMPLATE.replace('{agent}', AGENT_ASSISTANT)
+BEGIN_SYSTEM =              PREFIX_TEMPLATE.replace('{agent}', AGENT_SYSTEM)
+WORKING_DIR =               sys.argv[1] if len(sys.argv) == 2 else os.getcwd()
+CONTEXT_WARNING =           min(500, N_GENERATE)
 
 
 def format_text(text: str) -> str:
