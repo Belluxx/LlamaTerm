@@ -2,8 +2,8 @@ from llama_cpp import Llama, LlamaGrammar
 
 
 class Message:
-    def __init__(self, role: str, content: str) -> None:
-        self.role = role
+    def __init__(self, agent: str, content: str) -> None:
+        self.agent = agent
         self.content = content
 
 
@@ -52,12 +52,7 @@ class Chat:
         self.messages: list[Message] = []
         self.tokens_cache: list[int] = []
 
-
-    def add_message(self, agent: str, content: str) -> int:
-        new_message = Message(role=agent, content=content)
-        self.messages.append(new_message)
-
-        return self.context_available()
+        self.tokens_cache += self.tokenize_text(self.bot)
 
 
     def generate_reply(self, grammar: LlamaGrammar | None = None) -> tuple[str, int]:
@@ -66,6 +61,14 @@ class Chat:
 
     def generate_reply_stepped(self, grammar: LlamaGrammar | None = None):
         pass
+
+
+    def add_message(self, agent: str, content: str) -> int:
+        new_message = Message(agent=agent, content=content)
+        self.messages.append(new_message)
+        self.update_cache_last_msg()
+
+        return self.context_available()
 
 
     def check_eos_failure(self, full_reply: str) -> tuple[bool, str]:
@@ -88,6 +91,18 @@ class Chat:
         return interrupt, full_reply
 
 
+    def update_cache_last_msg(self) -> None:
+        last_message = self.messages[-1]
+        agent = last_message.agent
+        round_text = f'{self.agent_prefixes[agent]}{last_message.content}{self.eos}'
+
+        self.tokens_cache += self.tokenize_text(round_text)
+
+
+    def reload_cache(self) -> None:
+        pass
+
+
     def detokenize_text(self, tokens: list[int]) -> str:
         errors_strategy = 'ignore'
         try:
@@ -98,7 +113,11 @@ class Chat:
 
 
     def tokenize_text(self, text: str) -> list[int]:
-        return self.model.tokenize(bytes(text, self.CHARSET), add_bos=False)
+        try:
+            return self.model.tokenize(bytes(text, self.CHARSET), add_bos=False)
+        except:
+            print('[ERROR] An error occurred during tokenization of:', text)
+            exit(1)
 
 
     def check_context_overflow(self):
@@ -117,8 +136,4 @@ class Chat:
 
 
     def tokens_used(self) -> int:
-        pass
-
-
-    def delete(self):
-        del self.model
+        return len(self.tokens_cache)
