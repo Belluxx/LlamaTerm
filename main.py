@@ -115,7 +115,7 @@ if __name__ == '__main__':
         'user': BEGIN_USER
     }
 
-    agents = {
+    agent_names = {
         'system': AGENT_SYSTEM,
         'assistant': AGENT_ASSISTANT,
         'user': AGENT_USER
@@ -124,7 +124,7 @@ if __name__ == '__main__':
     chat = Chat(
         model=llama,
         prefixes=prefixes,
-        agents=agents,
+        agent_names=agent_names,
         bot=BOT,
         eos=EOS,
         n_generate=N_GENERATE,
