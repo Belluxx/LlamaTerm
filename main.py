@@ -109,7 +109,7 @@ if __name__ == '__main__':
     except ValueError as e:
         throw_error(f"the model path specified in the .env file is not valid: '{MODEL_PATH}'")
 
-    prefixes = {
+    agent_prefixes = {
         'system': BEGIN_SYSTEM,
         'assistant': BEGIN_ASSISTANT,
         'user': BEGIN_USER
@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     chat = Chat(
         model=llama,
-        prefixes=prefixes,
+        agent_prefixes=agent_prefixes,
         agent_names=agent_names,
         bot=BOT,
         eos=EOS,
