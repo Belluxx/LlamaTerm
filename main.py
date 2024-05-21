@@ -155,7 +155,8 @@ if __name__ == '__main__':
             else:
                 for token in chat.generate_reply_stepped():
                     print(token, end='', flush=True)
-                    free_ctx -= 1  # TODO Check if correct for EOS fixes that do not count as additional tokens
+                    free_ctx -= 1
+                    # TODO Get free ctx from apposite chat method
     except KeyboardInterrupt:
         print()
 
