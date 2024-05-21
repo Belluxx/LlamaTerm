@@ -150,10 +150,10 @@ if __name__ == '__main__':
 
             print(f'{ASSISTANT_DN}: ', end='', flush=True)
             if not REAL_TIME:
-                reply, free_ctx = chat.generate_reply()
+                reply, free_ctx = chat.generate_assistant_reply()
                 print(format_text(reply))
             else:
-                for token in chat.generate_reply_stepped():
+                for token in chat.generate_assistant_reply_stepped():
                     print(token, end='', flush=True)
                     free_ctx -= 1
                     # TODO Get free ctx from apposite chat method

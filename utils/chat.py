@@ -52,46 +52,72 @@ class Chat:
         self.messages: list[Message] = []
         self.tokens_cache: list[int] = []
 
-        self.tokens_cache += self.tokenize_text(self.bot)
+        if len(self.bot) > 0:  # Add the BOT (Begin Of Text) if specified
+            self.tokens_cache += self.tokenize_text(self.bot)
 
 
-    def generate_reply(self, grammar: LlamaGrammar | None = None) -> tuple[str, int]:
-        pass
+    def generate_assistant_reply(self, grammar: LlamaGrammar | None = None) -> tuple[str, int]:
+        self.cache_append_header(agent='assistant')
+
+        reply = ''
+        n_reply_tokens = 0
+        for token in self.model.generate(tokens=self.tokens_cache, grammar=grammar):
+            self.check_context_overflow()                   # Check for context exceeded
+            if token == self.model.token_eos(): break       # Check for EOS termination
+            if n_reply_tokens >= self.n_generate: break     # Check for max tokens reached
+
+            self.tokens_cache.append(token)
+            n_reply_tokens += 1
+            reply += self.detokenize_tokens([token])
+
+            interrupt, reply = self.check_eos_failure(reply)                    # Check for EOS detection failure due to multiple EOS tokens
+            if interrupt: break
+            interrupt, reply = self.check_model_impersonation(reply, 'user')    # Check for model trying to impersonate the user before EOS
+            if interrupt: break
+            interrupt, reply = self.check_model_impersonation(reply, 'system')  # Check for model trying to impersonate the system before EOS
+            if interrupt: break
+
+        return reply, self.context_available()
 
 
-    def generate_reply_stepped(self, grammar: LlamaGrammar | None = None):
-        pass
+    def generate_assistant_reply_stepped(self, grammar: LlamaGrammar | None = None):
+        yield ''
 
 
     def add_message(self, agent: str, content: str) -> int:
         new_message = Message(agent=agent, content=content)
         self.messages.append(new_message)
-        self.update_cache_last_msg()
+        self.cache_update_last_msg()
 
         return self.context_available()
 
 
-    def check_eos_failure(self, full_reply: str) -> tuple[bool, str]:
+    def check_eos_failure(self, reply: str) -> tuple[bool, str]:
         interrupt = False
-        if self.eos in full_reply[-(len(self.eos)+1):]:
-            if self.debug: print(f'[DEBUG] EOS escape occurred: {full_reply[-len(self.eos):]}')
-            full_reply = full_reply[:-len(self.eos)]
+        if self.eos in reply[-(len(self.eos)+1):]:
+            if self.debug: print(f'[DEBUG] EOS escape occurred: {reply[-len(self.eos):]}')
+            reply = reply[:-len(self.eos)]
             interrupt = True
 
-        return interrupt, full_reply
+        return interrupt, reply
 
 
-    def check_model_impersonation(self, full_reply: str, agent: str) -> tuple[bool, str]:
+    def check_model_impersonation(self, reply: str, agent: str) -> tuple[bool, str]:
         interrupt = False
-        if self.agent_prefixes[agent] in full_reply:
+        if self.agent_prefixes[agent] in reply:
             if self.debug: print(f'[DEBUG] Impersonation of {agent} detected')
-            full_reply = full_reply.split(self.agent_prefixes[agent])[0].strip()
+            reply = reply.split(self.agent_prefixes[agent])[0].strip()
             interrupt = True
 
-        return interrupt, full_reply
+        return interrupt, reply
 
 
-    def update_cache_last_msg(self) -> None:
+    def cache_append_header(self, agent: str) -> None:
+        header = f'{self.agent_prefixes[agent]}'
+        self.tokens_cache += self.tokenize_text(header)
+
+
+    def cache_update_last_msg(self) -> None:
         last_message = self.messages[-1]
         agent = last_message.agent
         round_text = f'{self.agent_prefixes[agent]}{last_message.content}{self.eos}'
@@ -99,11 +125,11 @@ class Chat:
         self.tokens_cache += self.tokenize_text(round_text)
 
 
-    def reload_cache(self) -> None:
+    def cache_reload(self) -> None:
         pass
 
 
-    def detokenize_text(self, tokens: list[int]) -> str:
+    def detokenize_tokens(self, tokens: list[int]) -> str:
         errors_strategy = 'ignore'
         try:
             return self.model.detokenize(tokens).decode(self.CHARSET, errors=errors_strategy)
@@ -112,9 +138,9 @@ class Chat:
             exit(1)
 
 
-    def tokenize_text(self, text: str) -> list[int]:
+    def tokenize_text(self, text: str, add_bos: bool = False) -> list[int]:
         try:
-            return self.model.tokenize(bytes(text, self.CHARSET), add_bos=False)
+            return self.model.tokenize(text=bytes(text, self.CHARSET), add_bos=add_bos)
         except:
             print('[ERROR] An error occurred during tokenization of:', text)
             exit(1)
@@ -137,3 +163,7 @@ class Chat:
 
     def tokens_used(self) -> int:
         return len(self.tokens_cache)
+
+
+    def get_raw_chat(self) -> str:
+        return self.detokenize_tokens(self.tokens_cache)
