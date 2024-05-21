@@ -1,4 +1,3 @@
-from time import time
 from llama_cpp import Llama, LlamaGrammar
 
 
@@ -36,7 +35,6 @@ class Chat:
         self.debug = debug
         self.messages: list[Message] = []
         self.tokens: list[int] = []
-        self.generation_time = 0
         self.n_tokens_generated = 0
 
 
@@ -59,14 +57,13 @@ class Chat:
 
 
     def generate_reply(self, grammar: LlamaGrammar | None = None) -> tuple[str, int]:
-        full_reply = ""
+        full_reply = ''
         n_current_tokens = 0
         free_context = self.context_available()
 
         if free_context <= 0:
             self.context_exceeded()
 
-        start_time = time()
         for token in self.model.generate(tokens=self.tokens, grammar=grammar):
             if self.debug: print(f'{token}\t{self.detokenize_text([token])}')
             if token == self.model.token_eos():
@@ -93,8 +90,6 @@ class Chat:
             n_current_tokens += 1
 
         self.append_raw_text(f'\n{self.prefixes["user"]}\n')  # TODO Temporary fix for missing user prefix
-
-        self.generation_time += time() - start_time
         self.n_tokens_generated += n_current_tokens
 
         return full_reply, self.context_available()
@@ -108,7 +103,6 @@ class Chat:
         if free_context <= 0:
             self.context_exceeded()
 
-        start_time = time()
         for token in self.model.generate(tokens=self.tokens, grammar=grammar):
             if token == self.model.token_eos():
                 yield '\n'
@@ -147,8 +141,6 @@ class Chat:
             yield reply
 
         self.append_raw_text(f'\n{self.prefixes["user"]}\n')  # TODO Temporary fix for missing user prefix
-
-        self.generation_time += time() - start_time
         self.n_tokens_generated += n_current_tokens
 
 
@@ -199,10 +191,8 @@ class Chat:
 
 
     def print_stats(self):
-        if self.generation_time == 0: return
         print(f'Tokens used: {self.tokens_used()}')
         print(f'Tokens left: {self.context_available()}')
-        print(f'Tokens generated per second: {self.n_tokens_generated / self.generation_time:.2f}')
 
 
     def append_raw_text(self, new_text: str):
@@ -214,13 +204,12 @@ class Chat:
 
 
     def get_raw_chat(self) -> str:
-        return self.model.detokenize(self.tokens).decode("UTF-8")
+        return self.model.detokenize(self.tokens).decode('UTF-8')
 
 
     def reset(self):
         self.messages = []
         self.tokens = []
-        self.generation_time = 0
         self.n_tokens_generated = 0
 
 
