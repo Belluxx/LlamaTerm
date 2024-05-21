@@ -15,19 +15,29 @@ class Chat:
     def __init__(
             self,
             model: Llama,
-            prefixes: dict[str, str],
             bot: str,
             eos: str,
-            agents: dict[str, str] = {
+            prefixes: dict[str, str],
+            n_generate: int,
+            agent_names: dict[str, str] = {
                 'system': 'system',
                 'assistant': 'assistant',
                 'user': 'user'
             },
-            n_generate=1000,
             debug=False
     ) -> None:
+        """
+        Create a new Chat object
+
+        @param model: the llama object that represents the model
+        @param bot: the token that starts the chat
+        @param eos: the token that ends a single chat round
+        @param prefixes: the tokens used to wrap an agent name
+        @param agent_names: the dict with the names for: system, assistant, user
+        @param debug: whether or not to output debug informations
+        """
         self.model = model
-        self.agents = agents
+        self.agent_names = agent_names
         self.prefixes = prefixes
         self.bot = bot
         self.eos = eos
@@ -43,11 +53,11 @@ class Chat:
         self.messages.append(new_message)
 
         wrapped_content: str = new_message.content + self.eos
-        if agent == self.agents['system']:
+        if agent == self.agent_names['system']:
             wrapped_content = f'{self.bot}{self.prefixes["system"]}\n{wrapped_content}\n{self.prefixes["assistant"]}\n'  # FIXME This works only if system and then assistant is provided
-        elif agent == self.agents['assistant']:
+        elif agent == self.agent_names['assistant']:
             wrapped_content = f'{wrapped_content}\n{self.prefixes["user"]}\n'
-        elif agent == self.agents['user']:
+        elif agent == self.agent_names['user']:
             wrapped_content = f'{wrapped_content}\n{self.prefixes["assistant"]}\n'
 
         new_tokens = self.tokenize_text(wrapped_content)
