@@ -9,9 +9,11 @@ from llama_cpp import Llama
 from utils.ansi import AnsiCodes as AC
 from utils.chat import Chat
 
+COMMAND_EXIT = 'exit'
+COMMAND_RESTART = 'restart'
+
 DEBUG = False
 ENV_FILE = '.env'
-EXIT = 'exit'
 ERROR_DN = f'{AC.FG_RED}{AC.BOLD}Error{AC.RESET}'
 
 def throw_error(msg: str, code: int = 1) -> None:
@@ -131,9 +133,9 @@ if __name__ == '__main__':
         debug=DEBUG
     )
 
-    chat.add_message(agent=AGENT_SYSTEM, content=SYSTEM_PROMPT)
+    chat.send_message(agent=Chat.SYSTEM_KEY, content=SYSTEM_PROMPT)
     print(f'{SYSTEM_DN}: {SYSTEM_PROMPT}')
-    chat.add_message(agent=AGENT_ASSISTANT, content=ASSISTANT_INITIAL_MESSAGE)
+    chat.send_message(agent=Chat.ASSISTANT_KEY, content=ASSISTANT_INITIAL_MESSAGE)
     print(f'{ASSISTANT_DN}: {ASSISTANT_INITIAL_MESSAGE}')
 
     last_message = ''
@@ -141,10 +143,11 @@ if __name__ == '__main__':
         while 1:
             last_message = input(f'{USER_DN}: ').strip()
             if len(last_message) == 0: continue
-            if last_message == EXIT: break
+            if last_message == COMMAND_EXIT: break
+            if last_message == COMMAND_RESTART: chat.reset_chat(keep_system=True); continue
 
             last_message = inject_file(last_message)
-            free_ctx = chat.add_message(AGENT_USER, last_message)
+            free_ctx = chat.send_message(Chat.USER_KEY, last_message)
             if free_ctx <= CONTEXT_WARNING:
                 print(f'{INFO_DN}: context is nearly finished ({free_ctx} tokens left)')
 
