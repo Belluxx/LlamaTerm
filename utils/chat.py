@@ -200,7 +200,6 @@ class Chat:
 
             # Re-add the system messages to the token cache
             for msg in self.messages:
-                print(msg)
                 self.cache_append_message(msg)
         else:
             self.messages = []

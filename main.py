@@ -79,10 +79,10 @@ def inject_file(text: str) -> str:  # TODO Check if path is absolute. If so, don
     for filename in filenames:
         filepath = WORKING_DIR + '/' + filename
         if os.path.isfile(filepath):
-            print(f'{INFO_DN}: Injecting {filename} into the context.')
+            print(f'{INFO_DN}: injecting {filename} into the context.')
             new_text += f'\n\n{file_to_markdown(filename)}'
             continue
-        print(f'{INFO_DN}: Faled injecting: {filename} does not exist.')
+        print(f'{INFO_DN}: faled injecting: {filename} does not exist.')
         new_text += f'\n\nFile {filename} does not exist.'
 
     return new_text
@@ -97,7 +97,7 @@ def file_to_markdown(filename: str) -> str:
 
 
 if __name__ == '__main__':
-    print(f'{INFO_DN}: Loading model: {MODEL_PATH.split("/")[-1]}')
+    print(f'{INFO_DN}: loading model: {MODEL_PATH.split("/")[-1]}')
     try:
         llama = Llama(
             model_path=MODEL_PATH,
@@ -144,7 +144,10 @@ if __name__ == '__main__':
             last_message = input(f'{USER_DN}: ').strip()
             if len(last_message) == 0: continue
             if last_message == COMMAND_EXIT: break
-            if last_message == COMMAND_RESTART: chat.reset_chat(keep_system=True); continue
+            if last_message == COMMAND_RESTART:
+                chat.reset_chat(keep_system=True)
+                print(f'{INFO_DN}: chat context cleared successfully')
+                continue
 
             last_message = inject_file(last_message)
             free_ctx = chat.send_message(Chat.USER_KEY, last_message)
