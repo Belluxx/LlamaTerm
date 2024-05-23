@@ -135,17 +135,16 @@ class Chat:
 
 
     def send_message(self, agent: str, content: str) -> int:
-        new_message = self.add_message(agent, content)
+        new_message = Message(agent=agent, content=content)
+        self.messages.append(new_message)
         self.cache_append_message(new_message)
 
         return self.context_available()
 
 
-    def add_message(self, agent: str, content: str) -> Message:
+    def add_message(self, agent: str, content: str) -> None:
         new_message = Message(agent=agent, content=content)
         self.messages.append(new_message)
-
-        return new_message
 
 
     def check_eos_failure(self, reply: str) -> tuple[bool, str]:
