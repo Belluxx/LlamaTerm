@@ -56,6 +56,7 @@ class Chat:
         self.agent_names = agent_names
         self.debug = debug
 
+        self.eos_token = self.tokenize_text(self.eos, special=True)[0]
         self.messages: list[Message] = []
         self.tokens_cache: list[int] = []
         self.cache_initialize()
@@ -67,9 +68,13 @@ class Chat:
         reply = ''
         n_reply_tokens = 0
         for token in self.model.generate(tokens=self.tokens_cache, grammar=grammar):
-            self.check_context_overflow()                   # Check for context exceeded
-            if token == self.model.token_eos(): break       # Check for EOS termination
-            if n_reply_tokens >= self.n_generate: break     # Check for max tokens reached
+            self.check_context_overflow()  # Check for context exceeded
+            if token == self.model.token_eos() or token == self.eos_token:  # Check for EOS termination
+                self.tokens_cache.append(self.eos_token)
+                break
+            if n_reply_tokens >= self.n_generate:  # Check for max tokens reached
+                self.tokens_cache.append(self.eos_token)
+                break
 
             self.tokens_cache.append(token)
             n_reply_tokens += 1
@@ -94,8 +99,14 @@ class Chat:
         n_reply_tokens = 0
         for token in self.model.generate(tokens=self.tokens_cache, grammar=grammar):
             self.check_context_overflow()
-            if token == self.model.token_eos(): yield '\n'; break
-            if n_reply_tokens >= self.n_generate: yield '\n'; break
+            if token == self.model.token_eos() or token == self.eos_token:  # Check for EOS termination
+                self.tokens_cache.append(self.eos_token)
+                yield '\n'
+                break
+            if n_reply_tokens >= self.n_generate:  # Check for max tokens reached
+                self.tokens_cache.append(self.eos_token)
+                yield '\n'
+                break
 
             self.tokens_cache.append(token)
             n_reply_tokens += 1
@@ -124,16 +135,17 @@ class Chat:
 
 
     def send_message(self, agent: str, content: str) -> int:
-        new_message = Message(agent=agent, content=content)
-        self.messages.append(new_message)
+        new_message = self.add_message(agent, content)
         self.cache_append_message(new_message)
 
         return self.context_available()
 
 
-    def add_message(self, agent: str, content: str) -> None:
+    def add_message(self, agent: str, content: str) -> Message:
         new_message = Message(agent=agent, content=content)
         self.messages.append(new_message)
+
+        return new_message
 
 
     def check_eos_failure(self, reply: str) -> tuple[bool, str]:
@@ -204,9 +216,9 @@ class Chat:
             exit(1)
 
 
-    def tokenize_text(self, text: str, add_bos: bool = False) -> list[int]:
+    def tokenize_text(self, text: str, add_bos: bool = False, special: bool = False) -> list[int]:
         try:
-            return self.model.tokenize(text=bytes(text, self.CHARSET), add_bos=add_bos)
+            return self.model.tokenize(text=bytes(text, self.CHARSET), add_bos=add_bos, special=special)
         except:
             print('[ERROR] An error occurred during tokenization of:', text)
             exit(1)
