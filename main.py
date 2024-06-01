@@ -82,7 +82,7 @@ def inject_file(text: str) -> str:  # TODO Check if path is absolute. If so, don
             print(f'{INFO_DN}: injecting {filename} into the context.')
             new_text += f'\n\n{file_to_markdown(filename)}'
             continue
-        print(f'{INFO_DN}: faled injecting: {filename} does not exist.')
+        print(f'{ERROR_DN}: faled injecting: {filename} does not exist.')
         new_text += f'\n\nFile {filename} does not exist.'
 
     return new_text
