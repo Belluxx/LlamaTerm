@@ -101,9 +101,12 @@ def file_to_markdown(file_path: str) -> str:
     file_ext = os.path.splitext(file_path)[1][1:]
     file_name = path_split[0].split(os.sep)[-1] + '.' + file_ext
 
-
-    with open(file_path, 'r') as f:
+    text = 'ERROR: The content is not valid text'
+    try:
+        f = open(file_path, 'r')
         text = f.read().strip()
+    except UnicodeError:
+        print(f'{ERROR_DN}: not a valid text file')
 
     md = f'Content of {file_name}:\n```{file_ext}\n{text}\n```'
     if DEBUG: print(f'{INFO_DN}: file markdown: {md}')
