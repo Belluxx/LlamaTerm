@@ -13,7 +13,7 @@ from utils.chat import Chat
 COMMAND_EXIT = 'exit'
 COMMAND_RESTART = 'restart'
 
-DEBUG = True
+DEBUG = False
 ENV_FILE = '.env'
 ERROR_DN = f'{AC.FG_RED}{AC.BOLD}Error{AC.RESET}'
 
