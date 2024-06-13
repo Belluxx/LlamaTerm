@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+import pathlib
 import pygments
 from pygments.lexers.markup import MarkdownLexer
 from pygments.formatters import Terminal256Formatter
@@ -12,7 +13,7 @@ from utils.chat import Chat
 COMMAND_EXIT = 'exit'
 COMMAND_RESTART = 'restart'
 
-DEBUG = False
+DEBUG = True
 ENV_FILE = '.env'
 ERROR_DN = f'{AC.FG_RED}{AC.BOLD}Error{AC.RESET}'
 
@@ -71,29 +72,43 @@ def format_text(text: str) -> str:
 
 
 def inject_file(text: str) -> str:  # TODO Check if path is absolute. If so, don't append the working dir
-    match_filename = r'\[(\S*\.\S+)\]'  # TODO Support spaces
+    match_filename = r'\[(([^\[\]])+\.(\w|\d){1,10})\]'
     pattern = re.compile(match_filename)
-    filenames: list[str] = pattern.findall(text)
+    filepaths: list[str] = [p[0] for p in pattern.findall(text)]
+    if DEBUG: print(f'{INFO_DN}: filepaths detected in prompt: {str(filepaths)}')
 
     new_text = text
-    for filename in filenames:
-        filepath = WORKING_DIR + '/' + filename
-        if os.path.isfile(filepath):
-            print(f'{INFO_DN}: injecting {filename} into the context.')
-            new_text += f'\n\n{file_to_markdown(filename)}'
+    for file_path in filepaths:
+        file_full_path = file_path
+        if not os.path.isabs(file_path):
+            file_full_path = os.path.join(WORKING_DIR, file_path)
+        if DEBUG: print(f'{INFO_DN}: full path is "{file_full_path}"')
+
+        if not os.path.isfile(file_full_path):
+            print(f'{ERROR_DN}: faled injecting: "{file_path}" does not exist.')
+            new_text += f'\n\nFile "{file_path}" does not exist.'
             continue
-        print(f'{ERROR_DN}: faled injecting: {filename} does not exist.')
-        new_text += f'\n\nFile {filename} does not exist.'
+
+        print(f'{INFO_DN}: injecting "{file_path}" into the context.')
+        to_inject = file_to_markdown(file_full_path)
+        new_text += '\n\n' + to_inject
 
     return new_text
 
 
-def file_to_markdown(filename: str) -> str:
-    path = WORKING_DIR + '/' + filename
-    extension = os.path.splitext(filename)[1][1:]
-    with open(path, 'r') as f:
+def file_to_markdown(file_path: str) -> str:
+    path_split = os.path.splitext(file_path)
+    file_ext = os.path.splitext(file_path)[1][1:]
+    file_name = path_split[0].split(os.sep)[-1] + '.' + file_ext
+
+
+    with open(file_path, 'r') as f:
         text = f.read().strip()
-    return f'Content of {filename}:\n```{extension}\n{text}\n```'
+
+    md = f'Content of {file_name}:\n```{file_ext}\n{text}\n```'
+    if DEBUG: print(f'{INFO_DN}: file markdown: {md}')
+
+    return md
 
 
 if __name__ == '__main__':
@@ -109,7 +124,7 @@ if __name__ == '__main__':
             verbose=DEBUG
         )
     except ValueError as e:
-        throw_error(f"the model path specified in the .env file is not valid: '{MODEL_PATH}'")
+        throw_error(f'the model path specified in the .env file is not valid: "{MODEL_PATH}"')
 
     agent_prefixes = {
         'system': BEGIN_SYSTEM,
