@@ -1,6 +1,6 @@
 # LlamaTerm
 LlamaTerm is a simple CLI utility that allows to use local LLM models easily and with some additional features.
-> :warning: Currently this project supports models that use ChatML format or something similar. Use for example [Phi-3-mini](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf) and [LLama3](https://huggingface.co/bartowski/Meta-Llama-3-8B-Instruct-GGUF) GGUFs.
+> :warning: Currently this project supports models that use ChatML format or something similar. Use for example [Phi-3](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf) and [LLama3](https://huggingface.co/bartowski/Meta-Llama-3-8B-Instruct-GGUF) GGUFs.
 
 ## Preview
 ### Basic usage:
@@ -26,9 +26,9 @@ Run LlamaTerm by adding the project directory to the `PATH` and then running `ll
 
 ## Models supported out of the box
 For the following models you will just need to rename the corresponding example `example-*.env` file to `.env` and set the `MODEL_PATH` field in the `.env`:
-* [LLama3 8B Instruct](https://huggingface.co/bartowski/Meta-Llama-3-8B-Instruct-GGUF) [**RECOMMENDED**]
-* [Phi 3 Mini Instruct](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf) [**RECOMMENDED**]
+* [LLama3 Instruct](https://huggingface.co/bartowski/Meta-Llama-3-8B-Instruct-GGUF) [**RECOMMENDED**]
+* [Phi 3 Instruct](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf) [**RECOMMENDED**]
 * [OpenHermes 2.5 Mistral 7B GGUF](https://huggingface.co/TheBloke/OpenHermes-2.5-Mistral-7B-GGUF/tree/main)
-* [Zephyr Beta 7B GGUF](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/tree/main)
+* [Zephyr Beta](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/tree/main)
 
 All the other models that have a prompt template similar to ChatML are supported but you will need to customize some fields like `PREFIX_TEMPLATE`, `EOS` etc... in the `.env`.
