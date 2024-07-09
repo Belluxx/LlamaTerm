@@ -215,7 +215,7 @@ class Chat:
             exit(1)
 
 
-    def tokenize_text(self, text: str, add_bos: bool = False, special: bool = False) -> list[int]:
+    def tokenize_text(self, text: str, add_bos: bool = False, special: bool = True) -> list[int]:
         try:
             return self.model.tokenize(text=bytes(text, self.CHARSET), add_bos=add_bos, special=special)
         except:
