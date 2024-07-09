@@ -17,14 +17,14 @@ DEBUG = False
 ENV_FILE = '.env'
 ERROR_DN = f'{AC.FG_RED}{AC.BOLD}Error{AC.RESET}'
 
-def throw_error(msg: str, code: int = 1) -> None:
+def print_error(msg: str) -> None:
     print(f'{ERROR_DN}: {msg}')
-    exit(code)
 
 def get_env_and_check(key: str, required: bool = True) -> str:
     value = os.getenv(key)
     if value is None and required:
-        throw_error(f'missing .env field \'{key}\'', 2)
+        print_error(f'missing .env field \'{key}\'')
+        exit(1)
 
     return str(value)
 
@@ -32,7 +32,8 @@ def get_env_and_check(key: str, required: bool = True) -> str:
 if os.path.isfile(ENV_FILE):
     load_dotenv(ENV_FILE)
 else:
-    throw_error('cannot read .env file.')
+    print_error('cannot read .env file.')
+    exit(1)
 
 # Load .env variables
 MODEL_PATH =                get_env_and_check('MODEL_PATH')
@@ -101,12 +102,12 @@ def file_to_markdown(file_path: str) -> str:
     file_ext = os.path.splitext(file_path)[1][1:]
     file_name = path_split[0].split(os.sep)[-1] + '.' + file_ext
 
-    text = 'ERROR: The content is not valid text'
+    text = 'FORMAT-ERROR: The content is not valid text'
     try:
         f = open(file_path, 'r')
         text = f.read().strip()
     except UnicodeError:
-        print(f'{ERROR_DN}: not a valid text file')
+        print_error('not a valid text file')
 
     md = f'Content of {file_name}:\n```{file_ext}\n{text}\n```'
     if DEBUG: print(f'{INFO_DN}: file markdown: {md}')
@@ -127,7 +128,8 @@ if __name__ == '__main__':
             verbose=DEBUG
         )
     except ValueError as e:
-        throw_error(f'the model path specified in the .env file is not valid: "{MODEL_PATH}"\nError: ${e}')
+        print_error(f'the model path specified in the .env file is not valid: "{MODEL_PATH}"')
+        exit(1)
 
     agent_prefixes = {
         'system': BEGIN_SYSTEM,
