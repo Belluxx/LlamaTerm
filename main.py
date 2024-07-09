@@ -21,9 +21,9 @@ def throw_error(msg: str, code: int = 1) -> None:
     print(f'{ERROR_DN}: {msg}')
     exit(code)
 
-def get_env_and_check(key: str) -> str:
+def get_env_and_check(key: str, required: bool = True) -> str:
     value = os.getenv(key)
-    if value is None:
+    if value is None and required:
         throw_error(f'missing .env field \'{key}\'', 2)
 
     return str(value)
@@ -39,10 +39,10 @@ MODEL_PATH =                get_env_and_check('MODEL_PATH')
 BOT =                       get_env_and_check('BOT')
 PREFIX_TEMPLATE =           get_env_and_check('PREFIX_TEMPLATE')
 EOS =                       get_env_and_check('EOS')
-AGENT_SYSTEM =              get_env_and_check('AGENT_SYSTEM')
+AGENT_SYSTEM =              get_env_and_check('AGENT_SYSTEM', required=False)
 AGENT_USER =                get_env_and_check('AGENT_USER')
 AGENT_ASSISTANT =           get_env_and_check('AGENT_ASSISTANT')
-SYSTEM_PROMPT =             get_env_and_check('SYSTEM_PROMPT')
+SYSTEM_PROMPT =             get_env_and_check('SYSTEM_PROMPT', required=False)
 ASSISTANT_INITIAL_MESSAGE = get_env_and_check('ASSISTANT_INITIAL_MESSAGE')
 REAL_TIME =                 bool(int(get_env_and_check('REAL_TIME')))
 N_CTX =                     int(get_env_and_check('N_CTX'))
@@ -127,7 +127,7 @@ if __name__ == '__main__':
             verbose=DEBUG
         )
     except ValueError as e:
-        throw_error(f'the model path specified in the .env file is not valid: "{MODEL_PATH}"')
+        throw_error(f'the model path specified in the .env file is not valid: "{MODEL_PATH}"\nError: ${e}')
 
     agent_prefixes = {
         'system': BEGIN_SYSTEM,
@@ -151,8 +151,10 @@ if __name__ == '__main__':
         debug=DEBUG
     )
 
-    chat.send_message(agent=Chat.SYSTEM_KEY, content=SYSTEM_PROMPT)
-    print(f'{SYSTEM_DN}: {SYSTEM_PROMPT}')
+    system_agent_present = not (SYSTEM_PROMPT and AGENT_SYSTEM)
+    if system_agent_present:
+        chat.send_message(agent=Chat.SYSTEM_KEY, content=SYSTEM_PROMPT)
+        print(f'{SYSTEM_DN}: {SYSTEM_PROMPT}')
     chat.send_message(agent=Chat.ASSISTANT_KEY, content=ASSISTANT_INITIAL_MESSAGE)
     print(f'{ASSISTANT_DN}: {ASSISTANT_INITIAL_MESSAGE}')
 
