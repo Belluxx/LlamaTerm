@@ -12,9 +12,9 @@ class Message:
 
 class Chat:
 
-    SYSTEM_KEY = "system"
-    ASSISTANT_KEY = "assistant"
-    USER_KEY = "user"
+    SYSTEM_KEY = 'system'
+    ASSISTANT_KEY = 'assistant'
+    USER_KEY = 'user'
 
     CLEAR_CURRENT_LINE = '\33[2K\r'
     CHARSET = 'UTF-8'
@@ -25,12 +25,12 @@ class Chat:
             bot: str,
             eos: str,
             n_generate: int,
-            agent_prefixes: dict[str, str] = {
+            agent_prefixes: dict[str, str] = {  # Default temaplte (most common one)
                 SYSTEM_KEY: '<|im_start|>system',
                 ASSISTANT_KEY: '<|im_start|>assistant',
                 USER_KEY: '<|im_start|>user'
             },
-            agent_names: dict[str, str] = {
+            agent_names: dict[str, str] = {  # Default agent names (most common ones)
                 SYSTEM_KEY: 'system',
                 ASSISTANT_KEY: 'assistant',
                 USER_KEY: 'user'
@@ -63,7 +63,7 @@ class Chat:
 
 
     def generate_assistant_reply(self, grammar: LlamaGrammar | None = None) -> tuple[str, int]:
-        self.cache_append_header(agent='assistant')
+        self.cache_append_header(agent=self.ASSISTANT_KEY)
 
         reply = ''
         n_reply_tokens = 0
@@ -72,7 +72,7 @@ class Chat:
             if token == self.model.token_eos() or token == self.eos_token:  # Check for EOS termination
                 self.tokens_cache.append(self.eos_token)
                 break
-            if n_reply_tokens >= self.n_generate:  # Check for max tokens reached
+            if n_reply_tokens >= self.n_generate:  # Check if the model generated more tokens than it should in this chat turn
                 self.tokens_cache.append(self.eos_token)
                 break
 
@@ -93,7 +93,7 @@ class Chat:
 
 
     def generate_assistant_reply_stepped(self, grammar: LlamaGrammar | None = None):
-        self.cache_append_header(agent='assistant')
+        self.cache_append_header(agent=self.ASSISTANT_KEY)
 
         reply = ''
         n_reply_tokens = 0
@@ -180,8 +180,7 @@ class Chat:
 
 
     def cache_append_message(self, message: Message) -> None:
-        agent = message.agent
-        round_text = f'{self.agent_prefixes[agent]}{message.content}{self.eos}'
+        round_text = f'{self.agent_prefixes[message.agent]}{message.content}{self.eos}'
         self.tokens_cache += self.tokenize_text(round_text)
 
 
