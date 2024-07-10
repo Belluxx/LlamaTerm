@@ -65,6 +65,15 @@ WORKING_DIR =               sys.argv[1] if len(sys.argv) == 2 else os.getcwd()
 CONTEXT_WARNING =           min(500, N_GENERATE)
 
 
+def supports_system_agent() -> bool:
+    return (
+        (SYSTEM_PROMPT != None) and
+        (AGENT_SYSTEM != None) and
+        (SYSTEM_PROMPT != "None") and
+        (AGENT_SYSTEM != "None")
+    )
+
+
 def format_text(text: str) -> str:
     lexer = MarkdownLexer()
     formatter = Terminal256Formatter(bg='dark')
@@ -153,7 +162,7 @@ if __name__ == '__main__':
         debug=DEBUG
     )
 
-    system_agent_present = not (SYSTEM_PROMPT and AGENT_SYSTEM)
+    system_agent_present = supports_system_agent()
     if system_agent_present:
         chat.send_message(agent=Chat.SYSTEM_KEY, content=SYSTEM_PROMPT)
         print(f'{SYSTEM_DN}: {SYSTEM_PROMPT}')
