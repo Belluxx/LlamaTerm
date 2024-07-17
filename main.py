@@ -141,15 +141,15 @@ if __name__ == '__main__':
         exit(1)
 
     agent_prefixes = {
-        'system': BEGIN_SYSTEM,
-        'assistant': BEGIN_ASSISTANT,
-        'user': BEGIN_USER
+        Chat.SYSTEM_KEY: BEGIN_SYSTEM,
+        Chat.ASSISTANT_KEY: BEGIN_ASSISTANT,
+        Chat.USER_KEY: BEGIN_USER
     }
 
     agent_names = {
-        'system': AGENT_SYSTEM,
-        'assistant': AGENT_ASSISTANT,
-        'user': AGENT_USER
+        Chat.SYSTEM_KEY: AGENT_SYSTEM,
+        Chat.ASSISTANT_KEY: AGENT_ASSISTANT,
+        Chat.USER_KEY: AGENT_USER
     }
 
     chat = Chat(
