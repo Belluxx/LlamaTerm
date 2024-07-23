@@ -56,7 +56,9 @@ class Chat:
         self.agent_names = agent_names
         self.debug = debug
 
-        self.eos_token = self.tokenize_text(self.eos, special=True)[0]
+        self.eos_token = self.tokenize_text(self.eos, add_bos=False, special=True)[0]
+        self.bot_token = self.tokenize_text(self.bot, add_bos=False, special=True)[0] if len(self.bot) > 0 else None
+
         self.messages: list[Message] = []
         self.tokens_cache: list[int] = []
         self.cache_initialize()
@@ -170,8 +172,8 @@ class Chat:
 
     def cache_initialize(self) -> None:
         self.tokens_cache = []
-        if len(self.bot) > 0:  # Add the BOT if specified
-            self.tokens_cache += self.tokenize_text(self.bot)
+        if self.bot_token:  # Add the BOT if specified
+            self.tokens_cache.append(self.bot_token)
 
 
     def cache_append_header(self, agent: str) -> None:
