@@ -65,6 +65,12 @@ class Chat:
 
 
     def generate_assistant_reply(self, grammar: LlamaGrammar | None = None) -> tuple[str, int]:
+        """
+        Get a response from the model (after a user message presumably) in a single final string.
+
+        @param grammar: the grammar used to constrain the output of the model
+        @return: the response text and the number of remaining tokens in the context
+        """
         self.cache_append_header(agent=self.ASSISTANT_KEY)
 
         reply = ''
@@ -95,6 +101,12 @@ class Chat:
 
 
     def generate_assistant_reply_stepped(self, grammar: LlamaGrammar | None = None):
+        """
+        Get a response from the model (after a user message presumably) as a stream of tokens.
+
+        @param grammar: the grammar used to constrain the output of the model
+        @return: the single (already detokenized) token generated
+        """
         self.cache_append_header(agent=self.ASSISTANT_KEY)
 
         reply = ''
@@ -137,6 +149,13 @@ class Chat:
 
 
     def send_message(self, agent: str, content: str) -> int:
+        """
+        Append a message to the context of the chat
+
+        @param agent: the agent that sent the content
+        @param content: the content of the message
+        @return: the available context after appending the message
+        """
         new_message = self.add_message(agent, content)
         self.cache_append_message(new_message)
 
@@ -144,6 +163,14 @@ class Chat:
 
 
     def add_message(self, agent: str, content: str) -> Message:
+        """
+        Create a new message and append it to the messages saved.
+        It does NOT add the message or its content to the contex.
+
+        @param agent: the agent that sent the content
+        @param content: the content of the message
+        @return: the message created from the agent and content
+        """
         new_message = Message(agent=agent, content=content)
         self.messages.append(new_message)
 
@@ -151,16 +178,32 @@ class Chat:
 
 
     def check_eos_failure(self, reply: str) -> tuple[bool, str]:
+        """
+        Check if the model outputted an EOS token that was not properly tokenized.
+        For example 3 tokens like `'<|' + 'end' + '|>'` instead of the single EOS
+        token `'<|eos|>'`.
+
+        @param reply: the reply of the assistant
+        @return: a tuple `(is_escape_detected, cleaned_reply)`
+        """
         interrupt = False
         if self.eos in reply[-(len(self.eos)+1):]:
             if self.debug: print(f'[DEBUG] EOS escape occurred: {reply[-len(self.eos):]}')
             reply = reply[:-len(self.eos)]
+            # TODO: Should re-add single-token EOS here?
             interrupt = True
 
         return interrupt, reply
 
 
     def check_model_impersonation(self, reply: str, agent: str) -> tuple[bool, str]:
+        """
+        Check if the model tried to impersonate the user (usually by completely skipping the EOS).
+
+        @param reply: the reply of the assistant
+        @param agent: the agent that the model may have impersonated (usually the user or itself)
+        @return: a tuple `(is_impersonation_detected, cleaned_reply)`
+        """
         interrupt = False
         if self.agent_prefixes[agent] in reply:
             if self.debug: print(f'[DEBUG] Impersonation of {agent} detected')
@@ -171,22 +214,39 @@ class Chat:
 
 
     def cache_initialize(self) -> None:
+        """
+        Initialize the context and re-add the BOS if needed
+        """
         self.tokens_cache = []
         if self.bot_token:  # Add the BOT if specified
             self.tokens_cache.append(self.bot_token)
 
 
     def cache_append_header(self, agent: str) -> None:
+        """
+        Add the starting header for an agent to the context
+
+        @param agent: the agent for which the header will be added
+        """
         header = f'{self.agent_prefixes[agent]}'
         self.tokens_cache += self.tokenize_text(header)
 
 
     def cache_append_message(self, message: Message) -> None:
+        """
+        Append a message to the context tokens
+
+        @param message: the message that will be added
+        """
         round_text = f'{self.agent_prefixes[message.agent]}{message.content}{self.eos}'
         self.tokens_cache += self.tokenize_text(round_text)
 
 
     def cache_rebuild(self) -> None:
+        """
+        Rebuild the cache by using the messages list contained in the
+        Chat object
+        """
         self.cache_initialize()
 
         for msg in self.messages:
@@ -194,6 +254,11 @@ class Chat:
 
 
     def reset_chat(self, keep_system: bool = False) -> None:
+        """
+        Reset the chat, including context and messages
+
+        @param keep_system: if the system messages should be kept in context or not
+        """
         self.cache_initialize()
 
         if keep_system:
@@ -208,6 +273,11 @@ class Chat:
 
 
     def detokenize_tokens(self, tokens: list[int]) -> str:
+        """
+        Detokenize the tokens list to a string
+
+        @param tokens: the list of tokens
+        """
         errors_strategy = 'ignore'
         try:
             return self.model.detokenize(tokens).decode(self.CHARSET, errors=errors_strategy)
@@ -217,6 +287,14 @@ class Chat:
 
 
     def tokenize_text(self, text: str, add_bos: bool = False, special: bool = True) -> list[int]:
+        """
+        Tokenize the string list to a list of tokens
+
+        @param text: the text totokenize
+        @param add_bos: whether or not the BOS token needs to be added
+        @param special: whether or not special tokens should be encoded as such
+        @return: the list of tokens
+        """
         try:
             return self.model.tokenize(text=bytes(text, self.CHARSET), add_bos=add_bos, special=special)
         except:
@@ -225,23 +303,44 @@ class Chat:
 
 
     def check_context_overflow(self):
+        """
+        Check if the context available was finished
+        """
         if self.context_available() <= 0:
             print('[ERROR] Context exceeded.')
             exit(1)
 
 
     def print_stats(self):
+        """
+        Print some stats about the chat
+        """
         print(f'Tokens used: {self.tokens_used()}')
         print(f'Tokens left: {self.context_available()}')
 
 
     def context_available(self) -> int:
+        """
+        Get the available context in the chat
+
+        @return: the available number of tokens in the context
+        """
         return self.model.n_ctx() - self.tokens_used()
 
 
     def tokens_used(self) -> int:
+        """
+        Get the tokens used until now in the context
+
+        @return: the number of used tokens in the context
+        """
         return len(self.tokens_cache)
 
 
     def get_raw_chat(self) -> str:
+        """
+        Get the raw chat text
+
+        @return: the raw chat
+        """
         return self.detokenize_tokens(self.tokens_cache)
