@@ -44,7 +44,7 @@ AGENT_SYSTEM =              get_env_and_check('AGENT_SYSTEM', required=False)
 AGENT_USER =                get_env_and_check('AGENT_USER')
 AGENT_ASSISTANT =           get_env_and_check('AGENT_ASSISTANT')
 SYSTEM_PROMPT =             get_env_and_check('SYSTEM_PROMPT', required=False)
-ASSISTANT_INITIAL_MESSAGE = get_env_and_check('ASSISTANT_INITIAL_MESSAGE')
+ASSISTANT_INITIAL_MESSAGE = get_env_and_check('ASSISTANT_INITIAL_MESSAGE', required=False)
 REAL_TIME =                 bool(int(get_env_and_check('REAL_TIME')))
 N_CTX =                     int(get_env_and_check('N_CTX'))
 N_GENERATE =                int(get_env_and_check('N_GENERATE'))
@@ -162,13 +162,17 @@ if __name__ == '__main__':
         debug=DEBUG
     )
 
-    system_agent_present = supports_system_agent()
-    if system_agent_present:
+    # Perform checks for optional env variables
+    if supports_system_agent():
         chat.send_message(agent=Chat.SYSTEM_KEY, content=SYSTEM_PROMPT)
         print(f'{SYSTEM_DN}: {SYSTEM_PROMPT}')
-    chat.send_message(agent=Chat.ASSISTANT_KEY, content=ASSISTANT_INITIAL_MESSAGE)
-    print(f'{ASSISTANT_DN}: {ASSISTANT_INITIAL_MESSAGE}')
+    
+    assistant_message_present = ASSISTANT_INITIAL_MESSAGE == None or ASSISTANT_INITIAL_MESSAGE == ''
+    if assistant_message_present:
+        chat.send_message(agent=Chat.ASSISTANT_KEY, content=ASSISTANT_INITIAL_MESSAGE)
+        print(f'{ASSISTANT_DN}: {ASSISTANT_INITIAL_MESSAGE}')
 
+    # Start chat
     last_message = ''
     try:
         while 1:
@@ -197,5 +201,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print()
 
+    # Exit
     chat.print_stats()
     if DEBUG: print(chat.get_raw_chat())
