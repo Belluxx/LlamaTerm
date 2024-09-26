@@ -48,6 +48,9 @@ ASSISTANT_INITIAL_MESSAGE = get_env_and_check('ASSISTANT_INITIAL_MESSAGE', requi
 REAL_TIME =                 bool(int(get_env_and_check('REAL_TIME')))
 N_CTX =                     int(get_env_and_check('N_CTX'))
 N_GENERATE =                int(get_env_and_check('N_GENERATE'))
+TEMPERATURE =               float(get_env_and_check('TEMPERATURE'))
+TOP_P =                     float(get_env_and_check('TOP_P'))
+TOP_K =                     int(get_env_and_check('TOP_K'))
 SEED =                      int(get_env_and_check('SEED'))
 USE_MMAP =                  bool(int(get_env_and_check('USE_MMAP')))
 USE_MLOCK =                 bool(int(get_env_and_check('USE_MLOCK')))
@@ -159,6 +162,9 @@ if __name__ == '__main__':
         bot=BOT,
         eos=EOS,
         n_generate=N_GENERATE,
+        temperature=TEMPERATURE,
+        top_p=TOP_P,
+        top_k=TOP_K,
         debug=DEBUG
     )
 
