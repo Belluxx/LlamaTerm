@@ -82,7 +82,9 @@ def supports_system_agent() -> bool:
         (SYSTEM_PROMPT != None) and
         (AGENT_SYSTEM != None) and
         (SYSTEM_PROMPT != "None") and
-        (AGENT_SYSTEM != "None")
+        (AGENT_SYSTEM != "None") and
+        (SYSTEM_PROMPT != "") and
+        (AGENT_SYSTEM != "")
     )
 
 
