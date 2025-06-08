@@ -3,13 +3,20 @@ import sys
 import re
 import pathlib
 import pygments
+import ctypes
 from pygments.lexers.markup import MarkdownLexer
 from pygments.formatters import Terminal256Formatter
 from dotenv import load_dotenv
-from llama_cpp import Llama
+from llama_cpp import Llama, llama_log_set
 from utils.ansi import AnsiCodes as AC
 from utils.chat import Chat
 
+# Disable llama.cpp verbose output
+def my_log_callback(level, message, user_data): pass
+log_callback = ctypes.CFUNCTYPE(None, ctypes.c_int, ctypes.c_char_p, ctypes.c_void_p)(my_log_callback)
+llama_log_set(log_callback, ctypes.c_void_p())
+
+# Define global variables and basic functions
 COMMAND_EXIT = 'exit'
 COMMAND_RESTART = 'restart'
 
