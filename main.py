@@ -11,18 +11,19 @@ from llama_cpp import Llama, llama_log_set
 from utils.ansi import AnsiCodes as AC
 from utils.chat import Chat
 
-# Disable llama.cpp verbose output
-def my_log_callback(level, message, user_data): pass
-log_callback = ctypes.CFUNCTYPE(None, ctypes.c_int, ctypes.c_char_p, ctypes.c_void_p)(my_log_callback)
-llama_log_set(log_callback, ctypes.c_void_p())
 
-# Define global variables and basic functions
 COMMAND_EXIT = 'exit'
 COMMAND_RESTART = 'restart'
 
 DEBUG = False
 ENV_FILE = '.env'
 ERROR_DN = f'{AC.FG_RED}{AC.BOLD}Error{AC.RESET}'
+
+# Disable llama.cpp verbose output
+if not DEBUG:
+    def my_log_callback(level, message, user_data): pass
+    log_callback = ctypes.CFUNCTYPE(None, ctypes.c_int, ctypes.c_char_p, ctypes.c_void_p)(my_log_callback)
+    llama_log_set(log_callback, ctypes.c_void_p())
 
 def print_error(msg: str) -> None:
     print(f'{ERROR_DN}: {msg}')
