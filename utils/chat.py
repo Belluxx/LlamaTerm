@@ -87,10 +87,10 @@ class Chat:
         for token in self.model.generate(tokens=self.tokens_cache, temp=self.temperature, top_p=self.top_p, top_k=self.top_k, grammar=grammar):
             self.check_context_overflow()  # Check for context exceeded
             if token == self.model.token_eos() or token == self.eos_token:  # Check for EOS termination
-                self.tokens_cache.append(self.eos_token)
+                self.tokens_cache += self.tokenize_text(self.eos)
                 break
             if n_reply_tokens >= self.n_generate:  # Check if the model generated more tokens than it should in this chat turn
-                self.tokens_cache.append(self.eos_token)
+                self.tokens_cache += self.tokenize_text(self.eos)
                 break
 
             self.tokens_cache.append(token)
@@ -123,11 +123,11 @@ class Chat:
         for token in self.model.generate(tokens=self.tokens_cache, temp=self.temperature, top_p=self.top_p, top_k=self.top_k, grammar=grammar):
             self.check_context_overflow()
             if token == self.model.token_eos() or token == self.eos_token:  # Check for EOS termination
-                self.tokens_cache.append(self.eos_token)
+                self.tokens_cache += self.tokenize_text(self.eos)
                 yield '\n'
                 break
             if n_reply_tokens >= self.n_generate:  # Check for max tokens reached
-                self.tokens_cache.append(self.eos_token)
+                self.tokens_cache += self.tokenize_text(self.eos)
                 yield '\n'
                 break
 
@@ -281,7 +281,7 @@ class Chat:
             self.messages = []
 
 
-    def detokenize_tokens(self, tokens: list[int]) -> str:
+    def detokenize_tokens(self, tokens: list[int], special: bool = True) -> str:
         """
         Detokenize the tokens list to a string
 
@@ -289,7 +289,7 @@ class Chat:
         """
         errors_strategy = 'ignore'
         try:
-            return self.model.detokenize(tokens).decode(self.CHARSET, errors=errors_strategy)
+            return self.model.detokenize(tokens, special=special).decode(self.CHARSET, errors=errors_strategy)
         except:
             print('[ERROR] An error occurred during detokenization of:', tokens)
             exit(1)
