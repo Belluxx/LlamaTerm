@@ -22,10 +22,12 @@ def print_error(msg: str) -> None:
 
 def get_env_and_check(key: str, required: bool = True) -> str:
     value = os.getenv(key)
-    if value is None and required:
-        print_error(f'missing .env field \'{key}\'')
-        exit(1)
-
+    if value is None:
+        if required:
+            print_error(f'missing .env field \'{key}\'')
+            exit(1)
+        return ''
+    
     return str(value)
 
 # Check if .env exists and load it
