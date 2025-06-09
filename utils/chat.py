@@ -27,9 +27,9 @@ class Chat:
             top_p: float = 0.9,
             top_k: int = 40,
             agent_prefixes: dict[str, str] = {  # Default template (most common one)
-                SYSTEM_KEY: '<|im_start|>system',
-                ASSISTANT_KEY: '<|im_start|>assistant',
-                USER_KEY: '<|im_start|>user'
+                SYSTEM_KEY: '<|im_start|>system\n',
+                ASSISTANT_KEY: '<|im_start|>assistant\n',
+                USER_KEY: '<|im_start|>user\n'
             },
             agent_names: dict[str, str] = {  # Default agent names (most common ones)
                 SYSTEM_KEY: 'system',
@@ -37,7 +37,7 @@ class Chat:
                 USER_KEY: 'user'
             },
             bot: str = '',
-            eos: str = '<|im_end|>',
+            eos: str = '<|im_end|>\n',
             debug=False
     ) -> None:
         """
